@@ -672,6 +672,27 @@ class GameTestCase(unittest.TestCase):
         active_player = get_active_player(game_data)
         self.assertEqual(active_player, game_data['players'][1])
 
+    def test_play_card_fails_when_illegal_wild_draw_for_is_played(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        add_player_to_game(game_data, 'PlayerTwo')
+        start_game(game_data)
+        # Set top of stack to red card
+        game_data['stack'][-1]['color'] = 'RED'
+        # Ensure the player has a red card
+        player = game_data['players'][0]
+        player['hand'][0]['value'] = '5'
+        player['hand'][0]['color'] = 'RED'
+        # Give the player a WILD_DRAW_FOUR card
+        player['hand'][1]['value'] = 'WILD_DRAW_FOUR'
+        player['hand'][1]['color'] = None
+        save_state(game_data)
+        card = player['hand'][1]
+        result = play_card(game_data['id'], player['id'], card['id'],
+                           selected_color='GREEN')
+        # Should fail since the WILD_DRAW_FOUR should be allowed if the
+        # player has a matching color card that could be played.
+        self.assertFalse(result)
+
     def test_count_points_for_player(self):
         game_data = create_new_game('MyGame', 'PlayerOne')
         start_game(game_data)
@@ -1085,6 +1106,31 @@ class GameTestCase(unittest.TestCase):
         result = admin_start_game(game_data['id'], player['id'])
         self.assertFalse(result)
 
+    def test_player_has_matching_color_card_succeeds(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        start_game(game_data)
+        player = game_data['players'][0]
+        # Set top of stack to red card
+        game_data['stack'][-1]['color'] = 'RED'
+        # Ensure the player has a red card
+        player = game_data['players'][0]
+        player['hand'][0]['value'] = '5'
+        player['hand'][0]['color'] = 'RED'
+        result = player_has_matching_color_card(game_data, player)
+        self.assertTrue(result)
+
+    def test_player_has_matching_color_card_fails(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        start_game(game_data)
+        player = game_data['players'][0]
+        # Set top of stack to an impossible color
+        game_data['stack'][-1]['color'] = 'IMPOSSIBLE_COLOR_TO_MATCH'
+        # Ensure the player has a red card
+        player = game_data['players'][0]
+        player['hand'][0]['value'] = '5'
+        player['hand'][0]['color'] = 'RED'
+        result = player_has_matching_color_card(game_data, player)
+        self.assertFalse(result)
 
 
 if __name__ == '__main__':

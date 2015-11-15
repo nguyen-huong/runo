@@ -187,6 +187,12 @@ def can_play_card(game_data, card):
     return False
 
 
+def player_has_matching_color_card(game_data, player):
+    # Get the color of the previously played card
+    color_to_match = game_data['stack'][-1]['color']
+    return color_to_match in [c['color'] for c in player['hand']]
+
+
 def get_active_player(game_data):
     """ Returns the currently active player """
     try:
@@ -326,6 +332,9 @@ def play_card(game_id, player_id, card_id, selected_color=None):
         if selected_color not in CARD_COLORS:
             return False
         card['color'] = selected_color
+    if card['value'] == 'WILD_DRAW_FOUR':
+        if player_has_matching_color_card(game_data, player):
+            return False
     player['hand'].remove(card)
     game_data['stack'].append(card)
     if card['value'] == 'REVERSE':
