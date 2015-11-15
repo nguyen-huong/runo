@@ -902,7 +902,7 @@ class GameTestCase(unittest.TestCase):
         result = leave_game(game_data['id'], player['id'])
         self.assertFalse(result)
 
-    def test_leave_game_ended_at_when_admin_leaves(self):
+    def test_leave_game_ends_when_admin_leaves(self):
         game_data = create_new_game('MyGame', 'PlayerOne')
         save_state(game_data)
         player = game_data['players'][0]
@@ -911,6 +911,63 @@ class GameTestCase(unittest.TestCase):
         game_data = load_state(game_data['id'])
         self.assertTrue(game_data['ended_at'])
 
+    def test_admin_start_game(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        add_player_to_game(game_data, 'PlayerTwo')
+        save_state(game_data)
+        player = game_data['players'][0]
+        result = admin_start_game(game_data['id'], player['id'])
+        self.assertTrue(result)
+
+    def test_admin_start_game_fails_when_game_id_not_valid(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        add_player_to_game(game_data, 'PlayerTwo')
+        save_state(game_data)
+        player = game_data['players'][0]
+        result = admin_start_game('bad_game_id', player['id'])
+        self.assertFalse(result)
+
+    def test_admin_start_game_fails_when_player_id_not_valid(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        add_player_to_game(game_data, 'PlayerTwo')
+        save_state(game_data)
+        player = game_data['players'][0]
+        result = admin_start_game(game_data['id'], 'bad_player_id')
+        self.assertFalse(result)
+
+    def test_admin_start_game_fails_when_game_id_already_active(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        add_player_to_game(game_data, 'PlayerTwo')
+        start_game(game_data)
+        save_state(game_data)
+        player = game_data['players'][0]
+        result = admin_start_game(game_data['id'], player['id'])
+        self.assertFalse(result)
+
+    def test_admin_start_game_fails_when_game_is_over(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        add_player_to_game(game_data, 'PlayerTwo')
+        game_data['ended_at'] = 'sometime'
+        save_state(game_data)
+        player = game_data['players'][0]
+        result = admin_start_game(game_data['id'], player['id'])
+        self.assertFalse(result)
+
+    def test_admin_start_game_fails_when_player_not_admin(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        add_player_to_game(game_data, 'PlayerTwo')
+        player = game_data['players'][0]
+        player['admin'] = False
+        save_state(game_data)
+        result = admin_start_game(game_data['id'], player['id'])
+        self.assertFalse(result)
+
+    def test_admin_start_game_fails_when_min_players_not_reached(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        player = game_data['players'][0]
+        save_state(game_data)
+        result = admin_start_game(game_data['id'], player['id'])
+        self.assertFalse(result)
 
 
 

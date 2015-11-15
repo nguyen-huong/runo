@@ -373,10 +373,34 @@ def leave_game(game_id, player_id):
     if game_data['active']:
         return False
     if game_data['ended_at']:
-        return None
+        return False
     player = [p for p in players if p['id'] == player_id][0]
     game_data['players'].remove(player)
     if player['admin']:
         game_data['ended_at'] = serialize_datetime(datetime.utcnow())
+    save_state(game_data)
+    return True
+
+
+def admin_start_game(game_id, player_id):
+    """ Attempts to start the game, as long as the player is admin.
+        Returns True if successful.
+    """
+    game_data = load_state(game_id)
+    if not game_data:
+        return False
+    players = game_data.get('players')
+    if player_id not in [p['id'] for p in players]:
+        return False
+    player = [p for p in players if p['id'] == player_id][0]
+    if game_data['active']:
+        return False
+    if game_data['ended_at']:
+        return False
+    if len(game_data['players']) < game_data['min_players']:
+        return False
+    if not player['admin']:
+        return False
+    start_game(game_data)
     save_state(game_data)
     return True
