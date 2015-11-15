@@ -166,6 +166,29 @@ def get_active_player(game_data):
         return None
 
 
+def reclaim_stack(game_data):
+    # Take the stack and make it the deck, remove the top card and put
+    # it back in the empty stack, then shuffle the deck.
+    game_data['deck'] = game_data['stack']
+    game_data['stack'] = [game_data['deck'].pop()]
+    random.shuffle(game_data['deck'])
+
+
+def draw_card(game_data, player):
+    deck = game_data['deck']
+    player['hand'].append(deck.pop())
+    if not deck:
+        reclaim_stack(game_data)
+
+
+def draw_two(game_data, player):
+    [draw_card(game_data, player) for __ in range(2)]
+
+
+def draw_four(game_data, player):
+    [draw_card(game_data, player) for __ in range(4)]
+
+
 def activate_next_player(game_data):
     active_player = get_active_player(game_data)
     active_index = game_data['players'].index(active_player)

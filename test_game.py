@@ -334,6 +334,56 @@ class GameTestCase(unittest.TestCase):
         card = create_card('6', 'RED')
         self.assertFalse(can_play_card(game_data, card))
 
+    def test_reclaim_stack(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        start_game(game_data)
+        game_data['deck'] = []
+        game_data['stack'] = ['card', 'card', 'card', 'top']
+        reclaim_stack(game_data)
+        self.assertEqual(game_data['stack'], ['top'])
+        self.assertEqual(game_data['deck'], ['card', 'card', 'card'])
+
+    def test_draw_card(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        start_game(game_data)
+        player = game_data['players'][0]
+        draw_card(game_data, player)
+        self.assertEqual(len(player['hand']), 8)
+
+    def test_draw_cards_triggers_reclaim_stack(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        start_game(game_data)
+        game_data['deck'] = ['card', 'card', 'card']
+        game_data['stack'] = ['card', 'card', 'card', 'top']
+        player = game_data['players'][0]
+        draw_card(game_data, player)
+        draw_card(game_data, player)
+        draw_card(game_data, player)
+        self.assertEqual(len(player['hand']), 10)
+        self.assertEqual(game_data['stack'], ['top'])
+        self.assertEqual(game_data['deck'], ['card', 'card', 'card'])
+
+    def test_draw_two(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        start_game(game_data)
+        game_data['deck'] = ['card', 'card']
+        game_data['stack'] = ['card', 'card', 'card', 'top']
+        player = game_data['players'][0]
+        draw_two(game_data, player)
+        self.assertEqual(len(player['hand']), 9)
+        self.assertEqual(game_data['stack'], ['top'])
+        self.assertEqual(game_data['deck'], ['card', 'card', 'card'])
+
+    def test_draw_four(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        start_game(game_data)
+        game_data['deck'] = ['card', 'card', 'card', 'card']
+        game_data['stack'] = ['card', 'card', 'card', 'top']
+        player = game_data['players'][0]
+        draw_four(game_data, player)
+        self.assertEqual(len(player['hand']), 11)
+        self.assertEqual(game_data['stack'], ['top'])
+        self.assertEqual(game_data['deck'], ['card', 'card', 'card'])
 
 
 if __name__ == '__main__':
