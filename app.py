@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request
-from uno import get_state, play_card, save_state
+from uno import get_state, play_card
 
 app = Flask(__name__)
 
@@ -18,10 +18,7 @@ def play_card_route():
     player_id = request.args.get('player_id')
     card_id = request.args.get('card_id')
     selected_color = request.args.get('selected_color')
-    game_data = play_card(game_id, player_id, card_id, selected_color)
-    result = game_data is not None
-    if result:
-        save_state(game_data)
+    result = play_card(game_id, player_id, card_id, selected_color)
     return jsonify(result=result)
 
 

@@ -92,6 +92,7 @@ def add_player_to_game(game_data, player_name, admin=False):
         'hand': []
     }
     game_data['players'].append(player)
+    save_state(game_data)
     return player
 
 
@@ -109,6 +110,7 @@ def create_new_game(game_name, player_name):
         'players': []
     }
     add_player_to_game(game_data, player_name, True)
+    save_state(game_data)
     return game_data
 
 
@@ -127,6 +129,7 @@ def start_game(game_data):
     admin_player['active'] = True
     game_data['active'] = True
     game_data['started_at'] = serialize_datetime(datetime.utcnow())
+    save_state(game_data)
 
 
 def get_state(game_id, player_id):
@@ -186,26 +189,27 @@ def activate_next_player(game_data):
 
 
 def play_card(game_id, player_id, card_id, selected_color=None):
-    """ Attempts to play card, returns game_data dictionary if succeeds """
+    """ Attempts to play card, returns True if succeeds """
     game_data = load_state(game_id)
     players = game_data.get('players', None)
     if not players or player_id not in [p['id'] for p in players]:
-        return None
+        return False
     player = [p for p in players if p['id'] == player_id][0]
     if not player['active']:
-        return None
+        return False
     if card_id not in [c['id'] for c in player['hand']]:
-        return None
+        return False
     card = [c for c in player['hand'] if c['id'] == card_id][0]
     if not can_play_card(game_data, card):
-        return None
+        return False
     if card['value'] in SPECIAL_CARDS:
         if selected_color not in CARD_COLORS:
-            return None
+            return False
         card['color'] = selected_color
     player['hand'].remove(card)
     game_data['stack'].append(card)
     if card['value'] == 'REVERSE':
         game_data['reverse'] = not game_data['reverse']
     activate_next_player(game_data)
-    return game_data
+    save_state(game_data)
+    return True

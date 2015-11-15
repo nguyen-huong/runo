@@ -26,7 +26,6 @@ class GameTestCase(unittest.TestCase):
 
     def test_load_state(self):
         game_data = create_new_game('MyGame', 'PlayerOne')
-        save_state(game_data)
         game_data = load_state(game_data['id'])
         self.assertNotEqual(game_data, {})
 
@@ -99,7 +98,6 @@ class GameTestCase(unittest.TestCase):
 
     def test_get_state(self):
         game_data = create_new_game('MyGame', 'PlayerOne')
-        save_state(game_data)
         game_id = game_data['id']
         player_id = game_data['players'][0]['id']
         result = get_state(game_id, player_id)
@@ -107,14 +105,12 @@ class GameTestCase(unittest.TestCase):
 
     def test_get_state_returns_empty_when_game_id_not_valid(self):
         game_data = create_new_game('MyGame', 'PlayerOne')
-        save_state(game_data)
         player_id = game_data['players'][0]['id']
         result = get_state('bad_game_id', player_id)
         self.assertEqual(result, {})
 
     def test_get_state_returns_empty_when_player_id_not_valid(self):
         game_data = create_new_game('MyGame', 'PlayerOne')
-        save_state(game_data)
         game_id = game_data['id']
         result = get_state(game_id, 'bad_player_id')
         self.assertEqual(result, {})
@@ -123,7 +119,6 @@ class GameTestCase(unittest.TestCase):
         game_data = create_new_game('MyGame', 'PlayerOne')
         add_player_to_game(game_data, 'PlayerTwo')
         start_game(game_data)
-        save_state(game_data)
         game_id = game_data['id']
         player_one_id = game_data['players'][0]['id']
         result = get_state(game_id, player_one_id)
@@ -134,7 +129,6 @@ class GameTestCase(unittest.TestCase):
         game_data = create_new_game('MyGame', 'PlayerOne')
         add_player_to_game(game_data, 'PlayerTwo')
         start_game(game_data)
-        save_state(game_data)
         game_id = game_data['id']
         player_one_id = game_data['players'][0]['id']
         result = get_state(game_id, player_one_id)
