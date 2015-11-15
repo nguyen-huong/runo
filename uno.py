@@ -15,6 +15,7 @@ GAME_FILE_PATH = 'games'
 SPECIAL_CARDS = ['WILD', 'WILD_DRAW_FOUR']
 SPECIAL_COLOR_CARDS = ['DRAW_TWO', 'SKIP', 'REVERSE']
 CARD_COLORS = ['RED', 'GREEN', 'YELLOW', 'BLUE']
+CARD_VALUES = [str(i) for i in range(0, 10)]
 
 
 def set_GAME_FILE_PATH(path):
@@ -69,10 +70,10 @@ def create_card(value, color=None):
 def create_deck():
     cards = []
     for color in CARD_COLORS:
-        cards.append(create_card(0, color))
-        for i in range(1, 10):
-            cards.append(create_card(i, color))
-            cards.append(create_card(i, color))
+        cards.append(create_card(CARD_VALUES[0], color))
+        for value in CARD_VALUES[1:]:
+            cards.append(create_card(value, color))
+            cards.append(create_card(value, color))
         for special in SPECIAL_COLOR_CARDS:
             cards.append(create_card(special, color))
             cards.append(create_card(special, color))
@@ -158,7 +159,10 @@ def can_play_card(game_data, card):
 
 def get_active_player(game_data):
     """ Returns the currently active player """
-    return [p for p in game_data['players'] if p['active']][0]
+    try:
+        return [p for p in game_data['players'] if p['active']][0]
+    except IndexError:
+        return None
 
 
 def activate_next_player(game_data):
@@ -170,7 +174,7 @@ def activate_next_player(game_data):
         player_iter = cycle(reversed(player_dq))
     else:
         player_iter = cycle(player_dq)
-        print(player_iter.next())
+        player_iter.next()
     num_players = len(game_data['players'])
     last_card = game_data['stack'][-1]
     if num_players == 2 and last_card['value'] == 'REVERSE':
