@@ -187,6 +187,13 @@ def can_play_card(game_data, card):
     return False
 
 
+def player_has_playable_card(game_data, player):
+    for card in player['hand']:
+        if can_play_card(game_data, card):
+            return True
+    return False
+
+
 def player_has_matching_color_card(game_data, player):
     # Get the color of the previously played card
     color_to_match = game_data['stack'][-1]['color']
@@ -360,6 +367,8 @@ def player_draw_card(game_id, player_id):
     if not player['active']:
         return False
     if not game_data['active']:
+        return False
+    if player_has_playable_card(game_data, player):
         return False
     draw_card(game_data, player)
     activate_next_player(game_data, card_drawn=True)

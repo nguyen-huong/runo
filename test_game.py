@@ -840,18 +840,34 @@ class GameTestCase(unittest.TestCase):
     def test_player_draw_card(self):
         game_data = create_new_game('MyGame', 'PlayerOne')
         start_game(game_data)
+        # Set top of stack to an arbitrary card
+        game_data['stack'][-1]['color'] = 'RED'
+        game_data['stack'][-1]['value'] = '5'
         player = game_data['players'][0]
+        # Set player's hand to not have a match, so the draw succeeds
+        player['hand'] = []
+        player['hand'].append(create_card('3', 'GREEN'))
+        player['hand'].append(create_card('6', 'YELLOW'))
+        player['hand'].append(create_card('7', 'BLUE'))
         save_state(game_data)
         result = player_draw_card(game_data['id'], player['id'])
         game_data = load_state(game_data['id'])
         player = game_data['players'][0]
         self.assertTrue(result)
-        self.assertEqual(len(player['hand']), 8)
+        self.assertEqual(len(player['hand']), 4)
 
     def test_player_draw_card_fails_when_game_id_not_valid(self):
         game_data = create_new_game('MyGame', 'PlayerOne')
         start_game(game_data)
+        # Set top of stack to an arbitrary card
+        game_data['stack'][-1]['color'] = 'RED'
+        game_data['stack'][-1]['value'] = '5'
         player = game_data['players'][0]
+        # Set player's hand to not have a match, so the draw succeeds
+        player['hand'] = []
+        player['hand'].append(create_card('3', 'GREEN'))
+        player['hand'].append(create_card('6', 'YELLOW'))
+        player['hand'].append(create_card('7', 'BLUE'))
         save_state(game_data)
         result = player_draw_card('bad_game_id', player['id'])
         self.assertFalse(result)
@@ -859,6 +875,15 @@ class GameTestCase(unittest.TestCase):
     def test_player_draw_card_fails_when_player_id_not_valid(self):
         game_data = create_new_game('MyGame', 'PlayerOne')
         start_game(game_data)
+        # Set top of stack to an arbitrary card
+        game_data['stack'][-1]['color'] = 'RED'
+        game_data['stack'][-1]['value'] = '5'
+        player = game_data['players'][0]
+        # Set player's hand to not have a match, so the draw succeeds
+        player['hand'] = []
+        player['hand'].append(create_card('3', 'GREEN'))
+        player['hand'].append(create_card('6', 'YELLOW'))
+        player['hand'].append(create_card('7', 'BLUE'))
         save_state(game_data)
         result = player_draw_card(game_data['id'], 'bad_player_id')
         self.assertFalse(result)
@@ -866,6 +891,15 @@ class GameTestCase(unittest.TestCase):
     def test_player_draw_card_fails_when_game_not_active(self):
         game_data = create_new_game('MyGame', 'PlayerOne')
         start_game(game_data)
+        # Set top of stack to an arbitrary card
+        game_data['stack'][-1]['color'] = 'RED'
+        game_data['stack'][-1]['value'] = '5'
+        player = game_data['players'][0]
+        # Set player's hand to not have a match, so the draw succeeds
+        player['hand'] = []
+        player['hand'].append(create_card('3', 'GREEN'))
+        player['hand'].append(create_card('6', 'YELLOW'))
+        player['hand'].append(create_card('7', 'BLUE'))
         game_data['active'] = False
         player = game_data['players'][0]
         save_state(game_data)
@@ -875,7 +909,15 @@ class GameTestCase(unittest.TestCase):
     def test_player_draw_card_fails_when_player_not_active(self):
         game_data = create_new_game('MyGame', 'PlayerOne')
         start_game(game_data)
+        # Set top of stack to an arbitrary card
+        game_data['stack'][-1]['color'] = 'RED'
+        game_data['stack'][-1]['value'] = '5'
         player = game_data['players'][0]
+        # Set player's hand to not have a match, so the draw succeeds
+        player['hand'] = []
+        player['hand'].append(create_card('3', 'GREEN'))
+        player['hand'].append(create_card('6', 'YELLOW'))
+        player['hand'].append(create_card('7', 'BLUE'))
         player['active'] = False
         save_state(game_data)
         result = player_draw_card(game_data['id'], player['id'])
@@ -885,13 +927,22 @@ class GameTestCase(unittest.TestCase):
         game_data = create_new_game('MyGame', 'PlayerOne')
         add_player_to_game(game_data, 'PlayerTwo')
         start_game(game_data)
+        # Set top of stack to an arbitrary card
+        game_data['stack'][-1]['color'] = 'RED'
+        game_data['stack'][-1]['value'] = '5'
+        player = game_data['players'][0]
+        # Set player's hand to not have a match, so the draw succeeds
+        player['hand'] = []
+        player['hand'].append(create_card('3', 'GREEN'))
+        player['hand'].append(create_card('6', 'YELLOW'))
+        player['hand'].append(create_card('7', 'BLUE'))
         save_state(game_data)
         player = game_data['players'][0]
         result = player_draw_card(game_data['id'], player['id'])
         game_data = load_state(game_data['id'])
         player = game_data['players'][0]
         self.assertTrue(result)
-        self.assertEqual(len(player['hand']), 8)
+        self.assertEqual(len(player['hand']), 4)
         active_player = get_active_player(game_data)
         self.assertEqual(active_player, game_data['players'][1])
 
@@ -899,14 +950,24 @@ class GameTestCase(unittest.TestCase):
         game_data = create_new_game('MyGame', 'PlayerOne')
         add_player_to_game(game_data, 'PlayerTwo')
         start_game(game_data)
+
+        # Set top of stack to non-color-matching REVERSE
         game_data['stack'][-1]['value'] = 'REVERSE'
+        game_data['stack'][-1]['color'] = 'RED'
+        player = game_data['players'][0]
+        # Set player's hand to not have a match, so the draw succeeds
+        player['hand'] = []
+        player['hand'].append(create_card('3', 'GREEN'))
+        player['hand'].append(create_card('6', 'YELLOW'))
+        player['hand'].append(create_card('7', 'BLUE'))
+
         save_state(game_data)
         player = game_data['players'][0]
         result = player_draw_card(game_data['id'], player['id'])
         game_data = load_state(game_data['id'])
         player = game_data['players'][0]
         self.assertTrue(result)
-        self.assertEqual(len(player['hand']), 8)
+        self.assertEqual(len(player['hand']), 4)
         active_player = get_active_player(game_data)
         self.assertEqual(active_player, game_data['players'][1])
 
@@ -914,14 +975,24 @@ class GameTestCase(unittest.TestCase):
         game_data = create_new_game('MyGame', 'PlayerOne')
         add_player_to_game(game_data, 'PlayerTwo')
         start_game(game_data)
+
+        # Set top of stack to non-color-matching SKIP
         game_data['stack'][-1]['value'] = 'SKIP'
+        game_data['stack'][-1]['color'] = 'RED'
+        player = game_data['players'][0]
+        # Set player's hand to not have a match, so the draw succeeds
+        player['hand'] = []
+        player['hand'].append(create_card('3', 'GREEN'))
+        player['hand'].append(create_card('6', 'YELLOW'))
+        player['hand'].append(create_card('7', 'BLUE'))
+
         save_state(game_data)
         player = game_data['players'][0]
         result = player_draw_card(game_data['id'], player['id'])
         game_data = load_state(game_data['id'])
         player = game_data['players'][0]
         self.assertTrue(result)
-        self.assertEqual(len(player['hand']), 8)
+        self.assertEqual(len(player['hand']), 4)
         active_player = get_active_player(game_data)
         self.assertEqual(active_player, game_data['players'][1])
 
@@ -929,14 +1000,24 @@ class GameTestCase(unittest.TestCase):
         game_data = create_new_game('MyGame', 'PlayerOne')
         add_player_to_game(game_data, 'PlayerTwo')
         start_game(game_data)
+
+        # Set top of stack to non-color-matching DRAW_TWO
         game_data['stack'][-1]['value'] = 'DRAW_TWO'
+        game_data['stack'][-1]['color'] = 'RED'
+        player = game_data['players'][0]
+        # Set player's hand to not have a match, so the draw succeeds
+        player['hand'] = []
+        player['hand'].append(create_card('3', 'GREEN'))
+        player['hand'].append(create_card('6', 'YELLOW'))
+        player['hand'].append(create_card('7', 'BLUE'))
+
         save_state(game_data)
         player = game_data['players'][0]
         result = player_draw_card(game_data['id'], player['id'])
         game_data = load_state(game_data['id'])
         player = game_data['players'][0]
         self.assertTrue(result)
-        self.assertEqual(len(player['hand']), 8)
+        self.assertEqual(len(player['hand']), 4)
         active_player = get_active_player(game_data)
         self.assertEqual(active_player, game_data['players'][1])
 
@@ -944,16 +1025,40 @@ class GameTestCase(unittest.TestCase):
         game_data = create_new_game('MyGame', 'PlayerOne')
         add_player_to_game(game_data, 'PlayerTwo')
         start_game(game_data)
+        # Set top of stack to non-color-matching WILD_DRAW_FOUR
         game_data['stack'][-1]['value'] = 'WILD_DRAW_FOUR'
+        game_data['stack'][-1]['color'] = 'RED'
+        player = game_data['players'][0]
+        # Set player's hand to not have a match, so the draw succeeds
+        player['hand'] = []
+        player['hand'].append(create_card('3', 'GREEN'))
+        player['hand'].append(create_card('6', 'YELLOW'))
+        player['hand'].append(create_card('7', 'BLUE'))
         save_state(game_data)
         player = game_data['players'][0]
         result = player_draw_card(game_data['id'], player['id'])
         game_data = load_state(game_data['id'])
         player = game_data['players'][0]
         self.assertTrue(result)
-        self.assertEqual(len(player['hand']), 8)
+        self.assertEqual(len(player['hand']), 4)
         active_player = get_active_player(game_data)
         self.assertEqual(active_player, game_data['players'][1])
+
+    def test_player_draw_card_fails_if_player_has_playable_card(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        start_game(game_data)
+        # Set top of stack to red card
+        game_data['stack'][-1]['color'] = 'RED'
+        # Ensure the player has a red card
+        player = game_data['players'][0]
+        player['hand'][0]['value'] = '5'
+        player['hand'][0]['color'] = 'RED'
+        save_state(game_data)
+        result = player_draw_card(game_data['id'], player['id'])
+        self.assertFalse(result)
+        game_data = load_state(game_data['id'])
+        player = game_data['players'][0]
+        self.assertEqual(len(player['hand']), 7)
 
     def test_join_game(self):
         game_data = create_new_game('MyGame', 'PlayerOne')
@@ -1109,7 +1214,6 @@ class GameTestCase(unittest.TestCase):
     def test_player_has_matching_color_card_succeeds(self):
         game_data = create_new_game('MyGame', 'PlayerOne')
         start_game(game_data)
-        player = game_data['players'][0]
         # Set top of stack to red card
         game_data['stack'][-1]['color'] = 'RED'
         # Ensure the player has a red card
@@ -1122,14 +1226,40 @@ class GameTestCase(unittest.TestCase):
     def test_player_has_matching_color_card_fails(self):
         game_data = create_new_game('MyGame', 'PlayerOne')
         start_game(game_data)
-        player = game_data['players'][0]
         # Set top of stack to an impossible color
         game_data['stack'][-1]['color'] = 'IMPOSSIBLE_COLOR_TO_MATCH'
-        # Ensure the player has a red card
         player = game_data['players'][0]
-        player['hand'][0]['value'] = '5'
-        player['hand'][0]['color'] = 'RED'
         result = player_has_matching_color_card(game_data, player)
+        self.assertFalse(result)
+
+    def test_player_has_playable_card_succeeds(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        start_game(game_data)
+        # Set top of stack to an arbitrary card
+        game_data['stack'][-1]['color'] = 'RED'
+        game_data['stack'][-1]['value'] = '5'
+        player = game_data['players'][0]
+        # Set player's hand to have a match for the above card
+        player['hand'] = []
+        player['hand'].append(create_card('6', 'RED'))
+        player['hand'].append(create_card('3', 'GREEN'))
+        player['hand'].append(create_card('7', 'BLUE'))
+        result = player_has_playable_card(game_data, player)
+        self.assertTrue(result)
+
+    def test_player_has_playable_card_fails(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        start_game(game_data)
+        # Set top of stack to an arbitrary card
+        game_data['stack'][-1]['color'] = 'RED'
+        game_data['stack'][-1]['value'] = '5'
+        player = game_data['players'][0]
+        # Set player's hand to not have the above card
+        player['hand'] = []
+        player['hand'].append(create_card('3', 'GREEN'))
+        player['hand'].append(create_card('6', 'YELLOW'))
+        player['hand'].append(create_card('7', 'BLUE'))
+        result = player_has_playable_card(game_data, player)
         self.assertFalse(result)
 
 
