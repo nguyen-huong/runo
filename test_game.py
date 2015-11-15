@@ -444,6 +444,145 @@ class GameTestCase(unittest.TestCase):
             start_game(game_data)
             self.assertFalse(game_data['stack'])
 
+    def test_play_card(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        add_player_to_game(game_data, 'PlayerTwo')
+        start_game(game_data)
+        player = game_data['players'][0]
+        card = player['hand'][0]
+        card['value'] = '5'
+        card['color'] = 'RED'
+        game_data['stack'][-1]['color'] = 'RED'
+        save_state(game_data)
+        result = play_card(game_data['id'], player['id'], card['id'])
+        game_data = load_state(game_data['id'])
+        player = game_data['players'][0]
+        self.assertTrue(result)
+        # The card played should be on top of the stack
+        self.assertEqual(game_data['stack'][-1], card)
+        # Stack should contain two cards now
+        self.assertEqual(len(game_data['stack']), 2)
+        # Player's hand should contain one less than the original seven
+        self.assertEqual(len(player['hand']), 6)
+        # The second player should now be the active player
+        self.assertEqual(get_active_player(game_data), game_data['players'][1])
+
+    def test_play_card_fails_when_game_id_not_valid(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        start_game(game_data)
+        player = game_data['players'][0]
+        card = player['hand'][0]
+        card['value'] = '5'
+        card['color'] = 'RED'
+        game_data['stack'][-1]['color'] = 'RED'
+        save_state(game_data)
+        result = play_card('bad_game_id', player['id'], card['id'])
+        self.assertFalse(result)
+
+    def test_play_card_fails_when_player_id_not_valid(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        start_game(game_data)
+        player = game_data['players'][0]
+        card = player['hand'][0]
+        card['value'] = '5'
+        card['color'] = 'RED'
+        game_data['stack'][-1]['color'] = 'RED'
+        save_state(game_data)
+        result = play_card(game_data['id'], 'bad_player_id', card['id'])
+        self.assertFalse(result)
+
+    def test_play_card_fails_when_card_id_not_valid(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        start_game(game_data)
+        player = game_data['players'][0]
+        card = player['hand'][0]
+        card['value'] = '5'
+        card['color'] = 'RED'
+        game_data['stack'][-1]['color'] = 'RED'
+        save_state(game_data)
+        result = play_card(game_data['id'], player['id'], 'bad_card_id')
+        self.assertFalse(result)
+
+    def test_play_card_fails_when_player_not_active(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        start_game(game_data)
+        player = game_data['players'][0]
+        card = player['hand'][0]
+        card['value'] = '5'
+        card['color'] = 'RED'
+        game_data['stack'][-1]['color'] = 'RED'
+        player['active'] = False
+        save_state(game_data)
+        result = play_card(game_data['id'], player['id'], card['id'])
+        self.assertFalse(result)
+
+    def test_play_card_fails_if_card_not_playable(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        start_game(game_data)
+        player = game_data['players'][0]
+        card = player['hand'][0]
+        card['value'] = '5'
+        card['color'] = 'RED'
+        game_data['stack'][-1]['value'] = '4'
+        game_data['stack'][-1]['color'] = 'GREEN'
+        save_state(game_data)
+        result = play_card(game_data['id'], player['id'], card['id'])
+        self.assertFalse(result)
+
+    def test_play_card_fails_if_special_card_with_no_selected_color(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        add_player_to_game(game_data, 'PlayerTwo')
+        start_game(game_data)
+        player = game_data['players'][0]
+        card = player['hand'][0]
+        card['value'] = 'WILD'
+        card['color'] = None
+        save_state(game_data)
+        result = play_card(game_data['id'], player['id'], card['id'])
+        self.assertFalse(result)
+        player = game_data['players'][1]
+        card = player['hand'][0]
+        card['value'] = 'WILD_DRAW_FOUR'
+        card['color'] = None
+        save_state(game_data)
+        result = play_card(game_data['id'], player['id'], card['id'])
+        self.assertFalse(result)
+
+    def test_play_card_fails_if_special_card_with_bad_selected_color(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        start_game(game_data)
+        player = game_data['players'][0]
+        card = player['hand'][0]
+        card['value'] = 'WILD'
+        card['color'] = None
+        save_state(game_data)
+        result = play_card(game_data['id'], player['id'], card['id'], 'PINK')
+        self.assertFalse(result)
+
+    def test_play_card_special_card_with_valid_selected_color(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        start_game(game_data)
+        player = game_data['players'][0]
+        card = player['hand'][0]
+        card['value'] = 'WILD'
+        card['color'] = None
+        save_state(game_data)
+        result = play_card(game_data['id'], player['id'], card['id'], 'RED')
+        self.assertTrue(result)
+
+    def test_play_card_sets_reverse_flag_when_reverse_card_is_played(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        start_game(game_data)
+        player = game_data['players'][0]
+        card = player['hand'][0]
+        card['value'] = 'REVERSE'
+        card['color'] = 'RED'
+        game_data['stack'][-1]['color'] = 'RED'
+        save_state(game_data)
+        play_card(game_data['id'], player['id'], card['id'])
+        game_data = load_state(game_data['id'])
+        self.assertTrue(game_data['reverse'])
+
 
 
 if __name__ == '__main__':
