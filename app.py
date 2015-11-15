@@ -1,7 +1,22 @@
 from flask import Flask, jsonify, request
-from uno import get_state, play_card
+from uno import admin_start_game, create_new_game, get_state, join_game, \
+    leave_game, play_card, player_draw_card
 
 app = Flask(__name__)
+
+
+@app.route('/newgame')
+def new_game():
+    game_name = request.args.get('game_name')
+    player_name = request.args.get('player_name')
+    points_to_win = request.args.get('points_to_win')
+    min_players = request.args.get('min_players')
+    max_players = request.args.get('max_players')
+    game_data = create_new_game(game_name, player_name, points_to_win,
+                                min_players, max_players)
+    game_id = game_data['id']
+    player_id = game_data['players'][0]['id']
+    return jsonify(game_id=game_id, player_id=player_id)
 
 
 @app.route('/getstate')
