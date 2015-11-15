@@ -439,8 +439,8 @@ class GameTestCase(unittest.TestCase):
         game_data = create_new_game('MyGame', 'PlayerOne')
         for special_type in SPECIAL_CARDS + SPECIAL_COLOR_CARDS:
             game_data['deck'] = []
-            [game_data['deck'].append(
-                create_card(special_type, 'any_color')) for __ in range(8)]
+            for __ in range(8):
+                game_data['deck'].append(create_card(special_type, 'any_color'))
             start_game(game_data)
             self.assertFalse(game_data['stack'])
 

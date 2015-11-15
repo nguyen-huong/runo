@@ -70,9 +70,11 @@ def create_deck():
     for color in CARD_COLORS:
         cards.append(create_card(CARD_VALUES[0], color))
         for value in CARD_VALUES[1:]:
-            [cards.append(create_card(value, color)) for __ in range(2)]
+            for __ in range(2):
+                cards.append(create_card(value, color))
         for special in SPECIAL_COLOR_CARDS:
-            [cards.append(create_card(special, color)) for __ in range(2)]
+            for __ in range(2):
+                cards.append(create_card(special, color))
     for special in SPECIAL_CARDS:
         for i in range(0, 4):
             cards.append(create_card(special))
@@ -128,16 +130,19 @@ def draw_card(game_data, player):
 
 
 def draw_two(game_data, player):
-    [draw_card(game_data, player) for __ in range(2)]
+    for __ in range(2):
+        draw_card(game_data, player)
 
 
 def draw_four(game_data, player):
-    [draw_card(game_data, player) for __ in range(4)]
+    for __ in range(4):
+        draw_card(game_data, player)
 
 
 def deal_cards(game_data):
     for player in game_data['players']:
-        [draw_card(game_data, player) for __ in range(7)]
+        for __ in range(7):
+            draw_card(game_data, player)
     # Look for a non-special card in the deck. Once found, move it
     # from the deck to the discard pile (stack).
     for card in reversed(game_data['deck']):
