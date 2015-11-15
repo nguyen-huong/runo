@@ -17,6 +17,8 @@ CARD_VALUES = [str(i) for i in range(0, 10)]
 MIN_PLAYERS = 2
 MAX_PLAYERS = 10
 POINTS_TO_WIN = 250
+DEFAULT_GAME_NAME = 'Game'
+DEFAULT_PLAYER_NAME = 'Player'
 
 
 def set_GAME_FILE_PATH(path):
@@ -266,6 +268,11 @@ def create_new_game(game_name, player_name, points_to_win=POINTS_TO_WIN,
     """ Creates a new game.
         Returns the game data dictionary.
     """
+    game_name = game_name or DEFAULT_GAME_NAME
+    player_name = player_name or DEFAULT_PLAYER_NAME
+    points_to_win = points_to_win or POINTS_TO_WIN
+    min_players = min_players or MIN_PLAYERS
+    max_players = max_players or MAX_PLAYERS
     if min_players < 2:
         min_players = 2
     if max_players > 10:
@@ -351,6 +358,7 @@ def join_game(game_id, name):
     """ Attempts to join a new player to the game.
         Returns player if successful, otherwise None.
     """
+    name = name or DEFAULT_PLAYER_NAME
     game_data = load_state(game_id)
     if not game_data:
         return None
