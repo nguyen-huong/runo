@@ -291,8 +291,7 @@ def create_new_game(game_name, player_name, points_to_win=POINTS_TO_WIN,
         'min_players': min_players,
         'max_players': max_players,
         'players': [],
-        'points_to_win': points_to_win,
-        'is_winner': False
+        'points_to_win': points_to_win
     }
     add_player_to_game(game_data, player_name, True)
     save_state(game_data)
