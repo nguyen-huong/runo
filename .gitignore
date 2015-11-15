@@ -1,3 +1,4 @@
 games/
+games_test/
 venv/
 *.pyc
