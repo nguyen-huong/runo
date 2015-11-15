@@ -776,6 +776,49 @@ class GameTestCase(unittest.TestCase):
         for player in game_data['players']:
             self.assertFalse(player['hand'])
 
+    def test_player_draw_card(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        start_game(game_data)
+        player = game_data['players'][0]
+        save_state(game_data)
+        result = player_draw_card(game_data['id'], player['id'])
+        game_data = load_state(game_data['id'])
+        player = game_data['players'][0]
+        self.assertTrue(result)
+        self.assertEqual(len(player['hand']), 8)
+
+    def test_player_draw_card_fails_when_game_id_not_valid(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        start_game(game_data)
+        player = game_data['players'][0]
+        save_state(game_data)
+        result = player_draw_card('bad_game_id', player['id'])
+        self.assertFalse(result)
+
+    def test_player_draw_card_fails_when_player_id_not_valid(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        start_game(game_data)
+        save_state(game_data)
+        result = player_draw_card(game_data['id'], 'bad_player_id')
+        self.assertFalse(result)
+
+    def test_player_draw_card_fails_when_game_not_active(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        start_game(game_data)
+        game_data['active'] = False
+        player = game_data['players'][0]
+        save_state(game_data)
+        result = player_draw_card(game_data['id'], player['id'])
+        self.assertFalse(result)
+
+    def test_player_draw_card_fails_when_player_not_active(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        start_game(game_data)
+        player = game_data['players'][0]
+        player['active'] = False
+        save_state(game_data)
+        result = player_draw_card(game_data['id'], player['id'])
+        self.assertFalse(result)
 
 if __name__ == '__main__':
     tests = unittest.TestLoader().loadTestsFromTestCase(GameTestCase)

@@ -309,3 +309,19 @@ def play_card(game_id, player_id, card_id, selected_color=None):
     activate_next_player(game_data)
     save_state(game_data)
     return True
+
+
+def player_draw_card(game_id, player_id):
+    """ Attempts to draw a card for the player, returns True if successful """
+    game_data = load_state(game_id)
+    players = game_data.get('players')
+    if not players or player_id not in [p['id'] for p in players]:
+        return False
+    player = [p for p in players if p['id'] == player_id][0]
+    if not player['active']:
+        return False
+    if not game_data['active']:
+        return False
+    draw_card(game_data, player)
+    save_state(game_data)
+    return True
