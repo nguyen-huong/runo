@@ -42,6 +42,10 @@ class GameTestCase(unittest.TestCase):
         game_data = create_new_game('MyGame', 'PlayerOne')
         self.assertFalse(game_data['reverse'])
 
+    def test_new_game_created_at(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        self.assertIsNotNone(game_data['created_at'])
+
     def test_started_at_is_none_before_game_starts(self):
         game_data = create_new_game('MyGame', 'PlayerOne')
         self.assertIsNone(game_data['started_at'])
