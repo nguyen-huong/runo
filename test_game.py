@@ -862,6 +862,56 @@ class GameTestCase(unittest.TestCase):
         result = join_game(game_data['id'], 'PlayerTwo')
         self.assertIsNone(result)
 
+    def test_leave_game(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        player2 = add_player_to_game(game_data, 'PlayerTwo')
+        save_state(game_data)
+        result = leave_game(game_data['id'], player2['id'])
+        self.assertTrue(result)
+        game_data = load_state(game_data['id'])
+        self.assertFalse(game_data['ended_at'])
+        self.assertEqual(len(game_data['players']), 1)
+
+    def test_leave_game_fails_when_game_id_not_valid(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        save_state(game_data)
+        player = game_data['players'][0]
+        result = leave_game('bad_game_id', player['id'])
+        self.assertFalse(result)
+
+    def test_leave_game_fails_when_player_id_not_valid(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        save_state(game_data)
+        player = game_data['players'][0]
+        result = leave_game(game_data['id'], 'bad_player_id')
+        self.assertFalse(result)
+
+    def test_leave_game_fails_when_game_is_already_active(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        start_game(game_data)
+        save_state(game_data)
+        player = game_data['players'][0]
+        result = leave_game(game_data['id'], player['id'])
+        self.assertFalse(result)
+
+    def test_leave_game_fails_when_game_is_over(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        game_data['ended_at'] = 'sometime'
+        save_state(game_data)
+        player = game_data['players'][0]
+        result = leave_game(game_data['id'], player['id'])
+        self.assertFalse(result)
+
+    def test_leave_game_ended_at_when_admin_leaves(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        save_state(game_data)
+        player = game_data['players'][0]
+        result = leave_game(game_data['id'], player['id'])
+        self.assertTrue(result)
+        game_data = load_state(game_data['id'])
+        self.assertTrue(game_data['ended_at'])
+
+
 
 
 if __name__ == '__main__':

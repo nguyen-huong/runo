@@ -14,6 +14,7 @@ SPECIAL_CARDS = ['WILD', 'WILD_DRAW_FOUR']
 SPECIAL_COLOR_CARDS = ['DRAW_TWO', 'SKIP', 'REVERSE']
 CARD_COLORS = ['RED', 'GREEN', 'YELLOW', 'BLUE']
 CARD_VALUES = [str(i) for i in range(0, 10)]
+MIN_PLAYERS = 2
 MAX_PLAYERS = 10
 POINTS_TO_WIN = 250
 
@@ -261,7 +262,10 @@ def set_game_winner(game_data, player):
 
 
 def create_new_game(game_name, player_name, points_to_win=POINTS_TO_WIN,
-                    max_players=MAX_PLAYERS):
+                    min_players=MIN_PLAYERS, max_players=MAX_PLAYERS):
+    """ Creates a new game.
+        Returns the game data dictionary.
+    """
     game_id = generate_id(GAME_ID_LENGTH)
     game_data = {
         'id': game_id,
@@ -273,6 +277,7 @@ def create_new_game(game_name, player_name, points_to_win=POINTS_TO_WIN,
         'ended_at': None,
         'active': False,
         'reverse': False,
+        'min_players': min_players,
         'max_players': max_players,
         'players': [],
         'points_to_win': points_to_win,
@@ -284,7 +289,9 @@ def create_new_game(game_name, player_name, points_to_win=POINTS_TO_WIN,
 
 
 def play_card(game_id, player_id, card_id, selected_color=None):
-    """ Attempts to play card, returns True if succeeds """
+    """ Attempts to play a card.
+        Returns True if succeeds.
+    """
     game_data = load_state(game_id)
     if not game_data:
         return False
@@ -317,7 +324,9 @@ def play_card(game_id, player_id, card_id, selected_color=None):
 
 
 def player_draw_card(game_id, player_id):
-    """ Attempts to draw a card for the player, returns True if successful """
+    """ Attempts to draw a card for the player.
+        Returns True if successful.
+    """
     game_data = load_state(game_id)
     if not game_data:
         return False
@@ -336,7 +345,7 @@ def player_draw_card(game_id, player_id):
 
 def join_game(game_id, name):
     """ Attempts to join a new player to the game.
-        Returns player if successful, otherwise None
+        Returns player if successful, otherwise None.
     """
     game_data = load_state(game_id)
     if not game_data:
@@ -349,3 +358,25 @@ def join_game(game_id, name):
     if player:
         save_state(game_data)
     return player
+
+
+def leave_game(game_id, player_id):
+    """ Attempts to remove a player from a game.
+        Returns True if successful.
+    """
+    game_data = load_state(game_id)
+    if not game_data:
+        return False
+    players = game_data.get('players')
+    if player_id not in [p['id'] for p in players]:
+        return False
+    if game_data['active']:
+        return False
+    if game_data['ended_at']:
+        return None
+    player = [p for p in players if p['id'] == player_id][0]
+    game_data['players'].remove(player)
+    if player['admin']:
+        game_data['ended_at'] = serialize_datetime(datetime.utcnow())
+    save_state(game_data)
+    return True
