@@ -19,6 +19,14 @@ class GameTestCase(unittest.TestCase):
         game_data = create_new_game('MyGame', 'PlayerOne')
         self.assertIsNotNone(game_data)
 
+    def test_create_new_game_low_min_players(self):
+        game_data = create_new_game('MyGame', 'PlayerOne', min_players=1)
+        self.assertEqual(game_data['min_players'], 2)
+
+    def test_create_new_game_high_max_players(self):
+        game_data = create_new_game('MyGame', 'PlayerOne', max_players=11)
+        self.assertEqual(game_data['max_players'], 10)
+
     def test_save_state(self):
         game_data = create_new_game('MyGame', 'PlayerOne')
         result = save_state(game_data)

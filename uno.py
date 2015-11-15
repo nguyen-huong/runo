@@ -266,6 +266,10 @@ def create_new_game(game_name, player_name, points_to_win=POINTS_TO_WIN,
     """ Creates a new game.
         Returns the game data dictionary.
     """
+    if min_players < 2:
+        min_players = 2
+    if max_players > 10:
+        max_players = 10
     game_id = generate_id(GAME_ID_LENGTH)
     game_data = {
         'id': game_id,
