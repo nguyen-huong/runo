@@ -363,7 +363,7 @@ class GameTestCase(unittest.TestCase):
         self.assertEqual(game_data['stack'], ['top'])
         self.assertEqual(game_data['deck'], ['card', 'card', 'card'])
 
-    def test_draw_two(self):
+    def test_draw_two_triggers_reclaim_stack(self):
         game_data = create_new_game('MyGame', 'PlayerOne')
         start_game(game_data)
         game_data['deck'] = ['card', 'card']
@@ -374,7 +374,7 @@ class GameTestCase(unittest.TestCase):
         self.assertEqual(game_data['stack'], ['top'])
         self.assertEqual(game_data['deck'], ['card', 'card', 'card'])
 
-    def test_draw_four(self):
+    def test_draw_four_triggers_reclaim_stack(self):
         game_data = create_new_game('MyGame', 'PlayerOne')
         start_game(game_data)
         game_data['deck'] = ['card', 'card', 'card', 'card']

@@ -70,11 +70,9 @@ def create_deck():
     for color in CARD_COLORS:
         cards.append(create_card(CARD_VALUES[0], color))
         for value in CARD_VALUES[1:]:
-            cards.append(create_card(value, color))
-            cards.append(create_card(value, color))
+            [cards.append(create_card(value, color)) for __ in range(2)]
         for special in SPECIAL_COLOR_CARDS:
-            cards.append(create_card(special, color))
-            cards.append(create_card(special, color))
+            [cards.append(create_card(special, color)) for __ in range(2)]
     for special in SPECIAL_CARDS:
         for i in range(0, 4):
             cards.append(create_card(special))
@@ -114,13 +112,33 @@ def create_new_game(game_name, player_name):
     return game_data
 
 
+def reclaim_stack(game_data):
+    # Take the stack and make it the deck, remove the top card and put
+    # it back in the empty stack, then shuffle the deck.
+    game_data['deck'] = game_data['stack']
+    game_data['stack'] = [game_data['deck'].pop()]
+    random.shuffle(game_data['deck'])
+
+
+def draw_card(game_data, player):
+    deck = game_data['deck']
+    player['hand'].append(deck.pop())
+    if not deck:
+        reclaim_stack(game_data)
+
+
+def draw_two(game_data, player):
+    [draw_card(game_data, player) for __ in range(2)]
+
+
+def draw_four(game_data, player):
+    [draw_card(game_data, player) for __ in range(4)]
+
+
 def deal_cards(game_data):
     for player in game_data['players']:
-        for i in range(0, 7):
-            draw = game_data['deck'].pop()
-            player['hand'].append(draw)
-    draw = game_data['deck'].pop()
-    game_data['stack'].append(draw)
+        [draw_card(game_data, player) for __ in range(7)]
+    game_data['stack'].append(game_data['deck'].pop())
 
 
 def start_game(game_data):
@@ -164,29 +182,6 @@ def get_active_player(game_data):
         return [p for p in game_data['players'] if p['active']][0]
     except IndexError:
         return None
-
-
-def reclaim_stack(game_data):
-    # Take the stack and make it the deck, remove the top card and put
-    # it back in the empty stack, then shuffle the deck.
-    game_data['deck'] = game_data['stack']
-    game_data['stack'] = [game_data['deck'].pop()]
-    random.shuffle(game_data['deck'])
-
-
-def draw_card(game_data, player):
-    deck = game_data['deck']
-    player['hand'].append(deck.pop())
-    if not deck:
-        reclaim_stack(game_data)
-
-
-def draw_two(game_data, player):
-    [draw_card(game_data, player) for __ in range(2)]
-
-
-def draw_four(game_data, player):
-    [draw_card(game_data, player) for __ in range(4)]
 
 
 def activate_next_player(game_data):
