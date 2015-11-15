@@ -371,7 +371,8 @@ def player_draw_card(game_id, player_id):
     if player_has_playable_card(game_data, player):
         return False
     draw_card(game_data, player)
-    activate_next_player(game_data, card_drawn=True)
+    if not player_has_playable_card(game_data, player):
+        activate_next_player(game_data, card_drawn=True)
     save_state(game_data)
     return True
 

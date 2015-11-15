@@ -931,6 +931,10 @@ class GameTestCase(unittest.TestCase):
         game_data['stack'][-1]['color'] = 'RED'
         game_data['stack'][-1]['value'] = '5'
         player = game_data['players'][0]
+        # Set top of deck to a non-matching card, to ensure that the next
+        # player is activated after the draw
+        game_data['deck'][-1]['color'] = 'BLUE'
+        game_data['deck'][-1]['value'] = '7'
         # Set player's hand to not have a match, so the draw succeeds
         player['hand'] = []
         player['hand'].append(create_card('3', 'GREEN'))
@@ -950,17 +954,19 @@ class GameTestCase(unittest.TestCase):
         game_data = create_new_game('MyGame', 'PlayerOne')
         add_player_to_game(game_data, 'PlayerTwo')
         start_game(game_data)
-
         # Set top of stack to non-color-matching REVERSE
         game_data['stack'][-1]['value'] = 'REVERSE'
         game_data['stack'][-1]['color'] = 'RED'
         player = game_data['players'][0]
+        # Set top of deck to a non-matching card, to ensure that the next
+        # player is activated after the draw
+        game_data['deck'][-1]['color'] = 'BLUE'
+        game_data['deck'][-1]['value'] = '7'
         # Set player's hand to not have a match, so the draw succeeds
         player['hand'] = []
         player['hand'].append(create_card('3', 'GREEN'))
         player['hand'].append(create_card('6', 'YELLOW'))
         player['hand'].append(create_card('7', 'BLUE'))
-
         save_state(game_data)
         player = game_data['players'][0]
         result = player_draw_card(game_data['id'], player['id'])
@@ -975,17 +981,19 @@ class GameTestCase(unittest.TestCase):
         game_data = create_new_game('MyGame', 'PlayerOne')
         add_player_to_game(game_data, 'PlayerTwo')
         start_game(game_data)
-
         # Set top of stack to non-color-matching SKIP
         game_data['stack'][-1]['value'] = 'SKIP'
         game_data['stack'][-1]['color'] = 'RED'
         player = game_data['players'][0]
+        # Set top of deck to a non-matching card, to ensure that the next
+        # player is activated after the draw
+        game_data['deck'][-1]['color'] = 'BLUE'
+        game_data['deck'][-1]['value'] = '7'
         # Set player's hand to not have a match, so the draw succeeds
         player['hand'] = []
         player['hand'].append(create_card('3', 'GREEN'))
         player['hand'].append(create_card('6', 'YELLOW'))
         player['hand'].append(create_card('7', 'BLUE'))
-
         save_state(game_data)
         player = game_data['players'][0]
         result = player_draw_card(game_data['id'], player['id'])
@@ -1000,17 +1008,19 @@ class GameTestCase(unittest.TestCase):
         game_data = create_new_game('MyGame', 'PlayerOne')
         add_player_to_game(game_data, 'PlayerTwo')
         start_game(game_data)
-
         # Set top of stack to non-color-matching DRAW_TWO
         game_data['stack'][-1]['value'] = 'DRAW_TWO'
         game_data['stack'][-1]['color'] = 'RED'
         player = game_data['players'][0]
+        # Set top of deck to a non-matching card, to ensure that the next
+        # player is activated after the draw
+        game_data['deck'][-1]['color'] = 'BLUE'
+        game_data['deck'][-1]['value'] = '7'
         # Set player's hand to not have a match, so the draw succeeds
         player['hand'] = []
         player['hand'].append(create_card('3', 'GREEN'))
         player['hand'].append(create_card('6', 'YELLOW'))
         player['hand'].append(create_card('7', 'BLUE'))
-
         save_state(game_data)
         player = game_data['players'][0]
         result = player_draw_card(game_data['id'], player['id'])
@@ -1029,6 +1039,10 @@ class GameTestCase(unittest.TestCase):
         game_data['stack'][-1]['value'] = 'WILD_DRAW_FOUR'
         game_data['stack'][-1]['color'] = 'RED'
         player = game_data['players'][0]
+        # Set top of deck to a non-matching card, to ensure that the next
+        # player is activated after the draw
+        game_data['deck'][-1]['color'] = 'BLUE'
+        game_data['deck'][-1]['value'] = '7'
         # Set player's hand to not have a match, so the draw succeeds
         player['hand'] = []
         player['hand'].append(create_card('3', 'GREEN'))
@@ -1043,6 +1057,34 @@ class GameTestCase(unittest.TestCase):
         self.assertEqual(len(player['hand']), 4)
         active_player = get_active_player(game_data)
         self.assertEqual(active_player, game_data['players'][1])
+
+    def test_player_draw_card_does_not_advance_if_drawn_card_is_playable(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        add_player_to_game(game_data, 'PlayerTwo')
+        start_game(game_data)
+        # Set top of stack to an arbitrary card
+        game_data['stack'][-1]['color'] = 'RED'
+        game_data['stack'][-1]['value'] = '5'
+        player = game_data['players'][0]
+        # Set top of deck to a matching card, to test that the first
+        # player remains active after the draw
+        game_data['deck'][-1]['color'] = 'RED'
+        game_data['deck'][-1]['value'] = '1'
+        # Set player's hand to not have a match, so the draw succeeds
+        player['hand'] = []
+        player['hand'].append(create_card('3', 'GREEN'))
+        player['hand'].append(create_card('6', 'YELLOW'))
+        player['hand'].append(create_card('7', 'BLUE'))
+        save_state(game_data)
+        player = game_data['players'][0]
+        result = player_draw_card(game_data['id'], player['id'])
+        game_data = load_state(game_data['id'])
+        player = game_data['players'][0]
+        self.assertTrue(result)
+        self.assertEqual(len(player['hand']), 4)
+        active_player = get_active_player(game_data)
+        # Ensure that the first player is still active
+        self.assertEqual(active_player, game_data['players'][0])
 
     def test_player_draw_card_fails_if_player_has_playable_card(self):
         game_data = create_new_game('MyGame', 'PlayerOne')
