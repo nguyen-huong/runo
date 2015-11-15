@@ -516,6 +516,19 @@ class GameTestCase(unittest.TestCase):
         result = play_card(game_data['id'], player['id'], card['id'])
         self.assertFalse(result)
 
+    def test_play_card_fails_when_game_not_active(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        start_game(game_data)
+        player = game_data['players'][0]
+        card = player['hand'][0]
+        card['value'] = '5'
+        card['color'] = 'RED'
+        game_data['stack'][-1]['color'] = 'RED'
+        game_data['active'] = False
+        save_state(game_data)
+        result = play_card(game_data['id'], player['id'], card['id'])
+        self.assertFalse(result)
+
     def test_play_card_fails_if_card_not_playable(self):
         game_data = create_new_game('MyGame', 'PlayerOne')
         start_game(game_data)
@@ -583,6 +596,185 @@ class GameTestCase(unittest.TestCase):
         game_data = load_state(game_data['id'])
         self.assertTrue(game_data['reverse'])
 
+    def test_play_card_player_goes_out(self):
+        game_data = create_new_game('MyGame', 'PlayerOne', 1)
+        add_player_to_game(game_data, 'PlayerTwo')
+        add_player_to_game(game_data, 'PlayerThree')
+        add_player_to_game(game_data, 'PlayerFour')
+        add_player_to_game(game_data, 'PlayerFive')
+        start_game(game_data)
+        player = game_data['players'][0]
+        card = create_card('5', 'GREEN')
+        player['hand'] = [card]
+        game_data['stack'][-1]['color'] = 'GREEN'
+        save_state(game_data)
+        play_card(game_data['id'], player['id'], card['id'])
+        game_data = load_state(game_data['id'])
+        player = game_data['players'][0]
+        self.assertTrue(player['game_winner'])
+
+    def test_play_card_player_goes_out_check_active_player_next_round(self):
+        game_data = create_new_game('MyGame', 'PlayerOne', 10000)
+        add_player_to_game(game_data, 'PlayerTwo')
+        add_player_to_game(game_data, 'PlayerThree')
+        add_player_to_game(game_data, 'PlayerFour')
+        add_player_to_game(game_data, 'PlayerFive')
+        start_game(game_data)
+        player = game_data['players'][0]
+        card = create_card('5', 'GREEN')
+        player['hand'] = [card]
+        game_data['stack'][-1]['color'] = 'GREEN'
+        save_state(game_data)
+        play_card(game_data['id'], player['id'], card['id'])
+        game_data = load_state(game_data['id'])
+        player = game_data['players'][0]
+        self.assertFalse(player['game_winner'])
+        active_player = get_active_player(game_data)
+        self.assertEqual(active_player, game_data['players'][1])
+
+    def test_count_points_for_player(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        start_game(game_data)
+        player = game_data['players'][0]
+        hand = []
+        hand.append(create_card('WILD'))
+        hand.append(create_card('WILD_DRAW_FOUR'))
+        hand.append(create_card('5', 'GREEN'))
+        hand.append(create_card('3', 'RED'))
+        hand.append(create_card('2', 'BLUE'))
+        hand.append(create_card('REVERSE', 'RED'))
+        hand.append(create_card('SKIP', 'YELLOW'))
+        player['hand'] = hand
+        points = count_points_for_player(player)
+        self.assertEqual(points, 150)
+
+    def test_count_points(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        add_player_to_game(game_data, 'PlayerTwo')
+        add_player_to_game(game_data, 'PlayerThree')
+        start_game(game_data)
+        hand = []
+        hand.append(create_card('WILD'))
+        hand.append(create_card('WILD_DRAW_FOUR'))
+        hand.append(create_card('5', 'GREEN'))
+        hand.append(create_card('3', 'RED'))
+        hand.append(create_card('2', 'BLUE'))
+        hand.append(create_card('REVERSE', 'RED'))
+        hand.append(create_card('SKIP', 'YELLOW'))
+        game_data['players'][1]['hand'] = hand
+        game_data['players'][2]['hand'] = hand
+        winner = game_data['players'][0]
+        points = count_points(game_data, winner)
+        self.assertEqual(points, 300)
+
+    def test_set_round_winner(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        add_player_to_game(game_data, 'PlayerTwo')
+        add_player_to_game(game_data, 'PlayerThree')
+        add_player_to_game(game_data, 'PlayerFour')
+        start_game(game_data)
+        hand = []
+        hand.append(create_card('5', 'GREEN'))
+        hand.append(create_card('3', 'RED'))
+        hand.append(create_card('2', 'BLUE'))
+        hand.append(create_card('REVERSE', 'RED'))
+        hand.append(create_card('SKIP', 'YELLOW'))
+        game_data['players'][1]['hand'] = hand
+        game_data['players'][2]['hand'] = hand
+        game_data['players'][3]['hand'] = hand
+        winner = game_data['players'][0]
+        set_round_winner(game_data, winner)
+        self.assertEqual(winner['points'], 150)
+        self.assertEqual(winner['rounds_won'], 1)
+        self.assertFalse(winner['game_winner'])
+
+    def test_set_round_winner_deal_cards(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        add_player_to_game(game_data, 'PlayerTwo')
+        add_player_to_game(game_data, 'PlayerThree')
+        add_player_to_game(game_data, 'PlayerFour')
+        start_game(game_data)
+        hand = []
+        hand.append(create_card('5', 'GREEN'))
+        hand.append(create_card('3', 'RED'))
+        hand.append(create_card('2', 'BLUE'))
+        hand.append(create_card('REVERSE', 'RED'))
+        hand.append(create_card('SKIP', 'YELLOW'))
+        game_data['players'][1]['hand'] = hand
+        game_data['players'][2]['hand'] = hand
+        game_data['players'][3]['hand'] = hand
+        winner = game_data['players'][0]
+        set_round_winner(game_data, winner)
+        for player in game_data['players']:
+            self.assertEqual(len(player['hand']), 7)
+
+    def test_set_round_winner_triggers_set_game_winner(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        add_player_to_game(game_data, 'PlayerTwo')
+        add_player_to_game(game_data, 'PlayerThree')
+        add_player_to_game(game_data, 'PlayerFour')
+        start_game(game_data)
+        hand = []
+        hand.append(create_card('WILD'))
+        hand.append(create_card('WILD_DRAW_FOUR'))
+        hand.append(create_card('5', 'GREEN'))
+        hand.append(create_card('3', 'RED'))
+        hand.append(create_card('2', 'BLUE'))
+        hand.append(create_card('REVERSE', 'RED'))
+        hand.append(create_card('SKIP', 'YELLOW'))
+        game_data['players'][1]['hand'] = hand
+        game_data['players'][2]['hand'] = hand
+        game_data['players'][3]['hand'] = hand
+        winner = game_data['players'][0]
+        set_round_winner(game_data, winner)
+        self.assertTrue(winner['game_winner'])
+
+    def test_set_round_winner_without_set_game_winner_due_to_high_goal(self):
+        game_data = create_new_game('MyGame', 'PlayerOne', 451)
+        add_player_to_game(game_data, 'PlayerTwo')
+        add_player_to_game(game_data, 'PlayerThree')
+        add_player_to_game(game_data, 'PlayerFour')
+        start_game(game_data)
+        hand = []
+        hand.append(create_card('WILD'))
+        hand.append(create_card('WILD_DRAW_FOUR'))
+        hand.append(create_card('5', 'GREEN'))
+        hand.append(create_card('3', 'RED'))
+        hand.append(create_card('2', 'BLUE'))
+        hand.append(create_card('REVERSE', 'RED'))
+        hand.append(create_card('SKIP', 'YELLOW'))
+        game_data['players'][1]['hand'] = hand
+        game_data['players'][2]['hand'] = hand
+        game_data['players'][3]['hand'] = hand
+        winner = game_data['players'][0]
+        set_round_winner(game_data, winner)
+        self.assertFalse(winner['game_winner'])
+
+    def test_game_no_longer_active_after_set_game_winner(self):
+        game_data = create_new_game('MyGame', 'PlayerOne', 451)
+        start_game(game_data)
+        set_game_winner(game_data, game_data['players'][0])
+        self.assertFalse(game_data['active'])
+
+    def test_ended_at_not_none_after_set_game_winner(self):
+        game_data = create_new_game('MyGame', 'PlayerOne', 451)
+        start_game(game_data)
+        set_game_winner(game_data, game_data['players'][0])
+        self.assertIsNotNone(game_data['ended_at'])
+
+    def test_reclaim_player_cards(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        add_player_to_game(game_data, 'PlayerTwo')
+        add_player_to_game(game_data, 'PlayerThree')
+        add_player_to_game(game_data, 'PlayerFour')
+        start_game(game_data)
+        self.assertEqual(len(game_data['deck']), 79)
+        top_card = game_data['stack'][-1]
+        reclaim_player_cards(game_data)
+        self.assertEqual(len(game_data['stack']), 29)
+        self.assertEqual(top_card, game_data['stack'][-1])
+        for player in game_data['players']:
+            self.assertFalse(player['hand'])
 
 
 if __name__ == '__main__':

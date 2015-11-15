@@ -14,6 +14,7 @@ SPECIAL_CARDS = ['WILD', 'WILD_DRAW_FOUR']
 SPECIAL_COLOR_CARDS = ['DRAW_TWO', 'SKIP', 'REVERSE']
 CARD_COLORS = ['RED', 'GREEN', 'YELLOW', 'BLUE']
 CARD_VALUES = [str(i) for i in range(0, 10)]
+POINTS_TO_WIN = 250
 
 
 def set_GAME_FILE_PATH(path):
@@ -89,14 +90,17 @@ def add_player_to_game(game_data, player_name, admin=False):
         'name': player_name,
         'admin': admin,
         'active': False,
-        'hand': []
+        'hand': [],
+        'points': 0,
+        'rounds_won': 0,
+        'game_winner': False
     }
     game_data['players'].append(player)
     save_state(game_data)
     return player
 
 
-def create_new_game(game_name, player_name):
+def create_new_game(game_name, player_name, points_to_win=POINTS_TO_WIN):
     game_id = generate_id(GAME_ID_LENGTH)
     game_data = {
         'id': game_id,
@@ -105,9 +109,12 @@ def create_new_game(game_name, player_name):
         'stack': [],
         'created_at': serialize_datetime(datetime.utcnow()),
         'started_at': None,
+        'ended_at': None,
         'active': False,
         'reverse': False,
-        'players': []
+        'players': [],
+        'points_to_win': points_to_win,
+        'is_winner': False
     }
     add_player_to_game(game_data, player_name, True)
     save_state(game_data)
@@ -120,6 +127,16 @@ def reclaim_stack(game_data):
     game_data['deck'] = game_data['stack']
     game_data['stack'] = [game_data['deck'].pop()]
     random.shuffle(game_data['deck'])
+
+
+def reclaim_player_cards(game_data):
+    # Collect cards from all players and insert them into the bottom
+    # of the stack.
+    player_cards = []
+    for player in game_data['players']:
+        player_cards += player['hand']
+        player['hand'] = []
+    game_data['stack'] = player_cards + game_data['stack']
 
 
 def draw_card(game_data, player):
@@ -228,6 +245,41 @@ def activate_next_player(game_data):
         next_player['active'] = True
 
 
+def count_points_for_player(player):
+    points = 0
+    for card in player['hand']:
+        if card['value'] in SPECIAL_CARDS:
+            points = points + 50
+        elif card['value'] in SPECIAL_COLOR_CARDS:
+            points = points + 20
+        else:
+            points = points + int(card['value'])
+    return points
+
+
+def count_points(game_data, winning_player):
+    points = 0
+    for player in [p for p in game_data['players'] if p != winning_player]:
+        points = points + count_points_for_player(player)
+    return points
+
+
+def set_round_winner(game_data, player):
+    player['points'] += count_points(game_data, player)
+    player['rounds_won'] += 1
+    if player['points'] >= game_data['points_to_win']:
+        set_game_winner(game_data, player)
+    else:
+        reclaim_player_cards(game_data)
+        deal_cards(game_data)
+
+
+def set_game_winner(game_data, player):
+    game_data['active'] = False
+    game_data['ended_at'] = serialize_datetime(datetime.utcnow())
+    player['game_winner'] = True
+
+
 def play_card(game_id, player_id, card_id, selected_color=None):
     """ Attempts to play card, returns True if succeeds """
     game_data = load_state(game_id)
@@ -238,6 +290,8 @@ def play_card(game_id, player_id, card_id, selected_color=None):
     if not player['active']:
         return False
     if card_id not in [c['id'] for c in player['hand']]:
+        return False
+    if not game_data['active']:
         return False
     card = [c for c in player['hand'] if c['id'] == card_id][0]
     if not can_play_card(game_data, card):
@@ -250,6 +304,8 @@ def play_card(game_id, player_id, card_id, selected_color=None):
     game_data['stack'].append(card)
     if card['value'] == 'REVERSE':
         game_data['reverse'] = not game_data['reverse']
+    if not player['hand']:
+        set_round_winner(game_data, player)
     activate_next_player(game_data)
     save_state(game_data)
     return True
