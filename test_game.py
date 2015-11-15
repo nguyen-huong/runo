@@ -297,6 +297,56 @@ class GameTestCase(unittest.TestCase):
         active_player = get_active_player(game_data)
         self.assertEqual(active_player, game_data['players'][0])
 
+    def test_activate_next_player_draw_two_card_two_player(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        add_player_to_game(game_data, 'PlayerTwo')
+        start_game(game_data)
+        # Add a DRAW_TWO card to the stack
+        game_data['stack'].append(create_card('DRAW_TWO', 'GREEN'))
+        activate_next_player(game_data)
+        affected_player = game_data['players'][1]
+        self.assertEqual(len(affected_player['hand']), 9)
+        active_player = get_active_player(game_data)
+        self.assertEqual(active_player, game_data['players'][0])
+
+    def test_activate_next_player_draw_two_card_multi_player(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        add_player_to_game(game_data, 'PlayerTwo')
+        add_player_to_game(game_data, 'PlayerThree')
+        start_game(game_data)
+        # Add a DRAW_TWO card to the stack
+        game_data['stack'].append(create_card('DRAW_TWO', 'GREEN'))
+        activate_next_player(game_data)
+        affected_player = game_data['players'][1]
+        self.assertEqual(len(affected_player['hand']), 9)
+        active_player = get_active_player(game_data)
+        self.assertEqual(active_player, game_data['players'][2])
+
+    def test_activate_next_player_draw_four_card_two_player(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        add_player_to_game(game_data, 'PlayerTwo')
+        start_game(game_data)
+        # Add a WILD_DRAW_FOUR card to the stack
+        game_data['stack'].append(create_card('WILD_DRAW_FOUR'))
+        activate_next_player(game_data)
+        affected_player = game_data['players'][1]
+        self.assertEqual(len(affected_player['hand']), 11)
+        active_player = get_active_player(game_data)
+        self.assertEqual(active_player, game_data['players'][0])
+
+    def test_activate_next_player_draw_four_card_multi_player(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        add_player_to_game(game_data, 'PlayerTwo')
+        add_player_to_game(game_data, 'PlayerThree')
+        start_game(game_data)
+        # Add a WILD_DRAW_FOUR card to the stack
+        game_data['stack'].append(create_card('WILD_DRAW_FOUR'))
+        activate_next_player(game_data)
+        affected_player = game_data['players'][1]
+        self.assertEqual(len(affected_player['hand']), 11)
+        active_player = get_active_player(game_data)
+        self.assertEqual(active_player, game_data['players'][2])
+
     def test_can_play_card_succeeds_with_any_special_card(self):
         game_data = create_new_game('MyGame', 'PlayerOne')
         start_game(game_data)

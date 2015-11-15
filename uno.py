@@ -209,7 +209,18 @@ def activate_next_player(game_data):
     next_player = player_iter.next()
     active_player['active'] = False
     next_player['active'] = True
-    # if top of stack is draw_four or draw_two, activate next player and do it
+    # If top of stack is draw_four or draw_two, activate next player
+    # and make them draw, then activate the player after them.
+    if last_card['value'] == 'DRAW_TWO':
+        draw_two(game_data, next_player)
+        next_player['active'] = False
+        next_player = player_iter.next()
+        next_player['active'] = True
+    if last_card['value'] == 'WILD_DRAW_FOUR':
+        draw_four(game_data, next_player)
+        next_player['active'] = False
+        next_player = player_iter.next()
+        next_player['active'] = True
 
 
 def play_card(game_id, player_id, card_id, selected_color=None):
