@@ -195,37 +195,41 @@ def get_active_player(game_data):
         return None
 
 
-def activate_next_player(game_data):
+def activate_next_player(game_data, card_drawn=False):
     active_player = get_active_player(game_data)
+    active_player['active'] = False
     active_index = game_data['players'].index(active_player)
     player_dq = deque(game_data['players'])
     player_dq.rotate(-active_index)
+    # Initialize the player iterator.
     if game_data['reverse']:
         player_iter = cycle(reversed(player_dq))
     else:
         player_iter = cycle(player_dq)
         player_iter.next()
-    num_players = len(game_data['players'])
-    last_card = game_data['stack'][-1]
-    if num_players == 2 and last_card['value'] == 'REVERSE':
-        player_iter.next()
-    if last_card['value'] == 'SKIP':
-        player_iter.next()
-    next_player = player_iter.next()
-    active_player['active'] = False
+    # If the last player was able to play a card, execute additional logic
+    # to determine any consequences of the card played.
+    if not card_drawn:
+        num_players = len(game_data['players'])
+        last_card = game_data['stack'][-1]
+        next_player = player_iter.next()
+        if num_players == 2 and last_card['value'] == 'REVERSE':
+            next_player = player_iter.next()
+        elif last_card['value'] == 'SKIP':
+            next_player = player_iter.next()
+        # If top of stack is draw_four or draw_two, draw cards on behalf
+        # of the next player, then activate the player after them.
+        elif last_card['value'] == 'DRAW_TWO':
+            draw_two(game_data, next_player)
+            next_player = player_iter.next()
+        elif last_card['value'] == 'WILD_DRAW_FOUR':
+            draw_four(game_data, next_player)
+            next_player = player_iter.next()
+    # If the last play was just drawing a card, the only logic necessary to
+    # run here is advancing to the next player.
+    else:
+        next_player = player_iter.next()
     next_player['active'] = True
-    # If top of stack is draw_four or draw_two, activate next player
-    # and make them draw, then activate the player after them.
-    if last_card['value'] == 'DRAW_TWO':
-        draw_two(game_data, next_player)
-        next_player['active'] = False
-        next_player = player_iter.next()
-        next_player['active'] = True
-    if last_card['value'] == 'WILD_DRAW_FOUR':
-        draw_four(game_data, next_player)
-        next_player['active'] = False
-        next_player = player_iter.next()
-        next_player['active'] = True
 
 
 def count_points_for_player(player):
@@ -349,6 +353,7 @@ def player_draw_card(game_id, player_id):
     if not game_data['active']:
         return False
     draw_card(game_data, player)
+    activate_next_player(game_data, card_drawn=True)
     save_state(game_data)
     return True
 

@@ -192,7 +192,7 @@ class GameTestCase(unittest.TestCase):
     def test_activate_next_player_fails_before_game_starts(self):
         game_data = create_new_game('MyGame', 'PlayerOne')
         add_player_to_game(game_data, 'PlayerTwo')
-        with self.assertRaises(ValueError):
+        with self.assertRaises(TypeError):
             activate_next_player(game_data)
 
     def test_activate_next_player_succeeds_even_if_only_one_player(self):
@@ -859,6 +859,80 @@ class GameTestCase(unittest.TestCase):
         save_state(game_data)
         result = player_draw_card(game_data['id'], player['id'])
         self.assertFalse(result)
+
+    def test_player_draw_card_advances_to_next_player(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        add_player_to_game(game_data, 'PlayerTwo')
+        start_game(game_data)
+        save_state(game_data)
+        player = game_data['players'][0]
+        result = player_draw_card(game_data['id'], player['id'])
+        game_data = load_state(game_data['id'])
+        player = game_data['players'][0]
+        self.assertTrue(result)
+        self.assertEqual(len(player['hand']), 8)
+        active_player = get_active_player(game_data)
+        self.assertEqual(active_player, game_data['players'][1])
+
+    def test_player_draw_card_advances_to_next_player_ignore_reverse(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        add_player_to_game(game_data, 'PlayerTwo')
+        start_game(game_data)
+        game_data['stack'][-1]['value'] = 'REVERSE'
+        save_state(game_data)
+        player = game_data['players'][0]
+        result = player_draw_card(game_data['id'], player['id'])
+        game_data = load_state(game_data['id'])
+        player = game_data['players'][0]
+        self.assertTrue(result)
+        self.assertEqual(len(player['hand']), 8)
+        active_player = get_active_player(game_data)
+        self.assertEqual(active_player, game_data['players'][1])
+
+    def test_player_draw_card_advances_to_next_player_ignore_skip(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        add_player_to_game(game_data, 'PlayerTwo')
+        start_game(game_data)
+        game_data['stack'][-1]['value'] = 'SKIP'
+        save_state(game_data)
+        player = game_data['players'][0]
+        result = player_draw_card(game_data['id'], player['id'])
+        game_data = load_state(game_data['id'])
+        player = game_data['players'][0]
+        self.assertTrue(result)
+        self.assertEqual(len(player['hand']), 8)
+        active_player = get_active_player(game_data)
+        self.assertEqual(active_player, game_data['players'][1])
+
+    def test_player_draw_card_advances_to_next_player_ignore_draw_two(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        add_player_to_game(game_data, 'PlayerTwo')
+        start_game(game_data)
+        game_data['stack'][-1]['value'] = 'DRAW_TWO'
+        save_state(game_data)
+        player = game_data['players'][0]
+        result = player_draw_card(game_data['id'], player['id'])
+        game_data = load_state(game_data['id'])
+        player = game_data['players'][0]
+        self.assertTrue(result)
+        self.assertEqual(len(player['hand']), 8)
+        active_player = get_active_player(game_data)
+        self.assertEqual(active_player, game_data['players'][1])
+
+    def test_player_draw_card_advances_to_next_player_ignore_draw_four(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        add_player_to_game(game_data, 'PlayerTwo')
+        start_game(game_data)
+        game_data['stack'][-1]['value'] = 'WILD_DRAW_FOUR'
+        save_state(game_data)
+        player = game_data['players'][0]
+        result = player_draw_card(game_data['id'], player['id'])
+        game_data = load_state(game_data['id'])
+        player = game_data['players'][0]
+        self.assertTrue(result)
+        self.assertEqual(len(player['hand']), 8)
+        active_player = get_active_player(game_data)
+        self.assertEqual(active_player, game_data['players'][1])
 
     def test_join_game(self):
         game_data = create_new_game('MyGame', 'PlayerOne')
