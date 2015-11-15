@@ -158,7 +158,7 @@ def start_game(game_data):
 
 def get_state(game_id, player_id):
     game_data = load_state(game_id)
-    players = game_data.get('players', None)
+    players = game_data.get('players')
     if not players or player_id not in [p['id'] for p in players]:
         return {}
     for p in players:
@@ -226,7 +226,7 @@ def activate_next_player(game_data):
 def play_card(game_id, player_id, card_id, selected_color=None):
     """ Attempts to play card, returns True if succeeds """
     game_data = load_state(game_id)
-    players = game_data.get('players', None)
+    players = game_data.get('players')
     if not players or player_id not in [p['id'] for p in players]:
         return False
     player = [p for p in players if p['id'] == player_id][0]
