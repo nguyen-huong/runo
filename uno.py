@@ -138,7 +138,13 @@ def draw_four(game_data, player):
 def deal_cards(game_data):
     for player in game_data['players']:
         [draw_card(game_data, player) for __ in range(7)]
-    game_data['stack'].append(game_data['deck'].pop())
+    # Look for a non-special card in the deck. Once found, move it
+    # from the deck to the discard pile (stack).
+    for card in reversed(game_data['deck']):
+        if card['value'] not in SPECIAL_CARDS + SPECIAL_COLOR_CARDS:
+            game_data['stack'].append(card)
+            break
+    game_data['deck'].remove(card)
 
 
 def start_game(game_data):
