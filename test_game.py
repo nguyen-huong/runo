@@ -385,6 +385,16 @@ class GameTestCase(unittest.TestCase):
         self.assertEqual(game_data['stack'], ['top'])
         self.assertEqual(game_data['deck'], ['card', 'card', 'card'])
 
+    def test_deal_cards_avoid_starting_stack_with_special_cards(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        for special_type in SPECIAL_CARDS + SPECIAL_COLOR_CARDS:
+            game_data['deck'] = []
+            [game_data['deck'].append(
+                create_card(special_type, 'any_color')) for __ in range(8)]
+            start_game(game_data)
+            self.assertFalse(game_data['stack'])
+
+
 
 if __name__ == '__main__':
     tests = unittest.TestLoader().loadTestsFromTestCase(GameTestCase)
