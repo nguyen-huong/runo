@@ -6,17 +6,34 @@ app = Flask(__name__)
 
 
 @app.route('/newgame')
-def new_game():
+def new_game_route():
     game_name = request.args.get('game_name')
     player_name = request.args.get('player_name')
-    points_to_win = request.args.get('points_to_win')
-    min_players = request.args.get('min_players')
-    max_players = request.args.get('max_players')
-    game_data = create_new_game(game_name, player_name, points_to_win,
-                                min_players, max_players)
+    # points_to_win = request.args.get('points_to_win')
+    # min_players = request.args.get('min_players', 0, int)
+    # max_players = request.args.get('max_players', 0, int)
+    game_data = create_new_game(game_name, player_name)
     game_id = game_data['id']
     player_id = game_data['players'][0]['id']
     return jsonify(game_id=game_id, player_id=player_id)
+
+
+@app.route('/join')
+def join_route():
+    game_id = request.args.get('game_id')
+    name = request.args.get('name')
+    player = join_game(game_id, name)
+    if player:
+        return jsonify(player_id=player['id'])
+    return jsonify(player_id=None)
+
+
+@app.route('/start')
+def start_route():
+    game_id = request.args.get('game_id')
+    player_id = request.args.get('player_id')
+    result = admin_start_game(game_id, player_id)
+    return jsonify(result=result)
 
 
 @app.route('/getstate')
@@ -34,6 +51,14 @@ def play_card_route():
     card_id = request.args.get('card_id')
     selected_color = request.args.get('selected_color')
     result = play_card(game_id, player_id, card_id, selected_color)
+    return jsonify(result=result)
+
+
+@app.route('/draw')
+def draw_route():
+    game_id = request.args.get('game_id')
+    player_id = request.args.get('player_id')
+    result = player_draw_card(game_id, player_id)
     return jsonify(result=result)
 
 
