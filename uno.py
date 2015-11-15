@@ -14,6 +14,7 @@ SPECIAL_CARDS = ['WILD', 'WILD_DRAW_FOUR']
 SPECIAL_COLOR_CARDS = ['DRAW_TWO', 'SKIP', 'REVERSE']
 CARD_COLORS = ['RED', 'GREEN', 'YELLOW', 'BLUE']
 CARD_VALUES = [str(i) for i in range(0, 10)]
+MAX_PLAYERS = 10
 POINTS_TO_WIN = 250
 
 
@@ -84,6 +85,8 @@ def create_deck():
 
 
 def add_player_to_game(game_data, player_name, admin=False):
+    if game_data['max_players'] == len(game_data['players']):
+        return None
     player_id = generate_id(PLAYER_ID_LENGTH)
     player = {
         'id': player_id,
@@ -96,29 +99,7 @@ def add_player_to_game(game_data, player_name, admin=False):
         'game_winner': False
     }
     game_data['players'].append(player)
-    save_state(game_data)
     return player
-
-
-def create_new_game(game_name, player_name, points_to_win=POINTS_TO_WIN):
-    game_id = generate_id(GAME_ID_LENGTH)
-    game_data = {
-        'id': game_id,
-        'name': game_name,
-        'deck': create_deck(),
-        'stack': [],
-        'created_at': serialize_datetime(datetime.utcnow()),
-        'started_at': None,
-        'ended_at': None,
-        'active': False,
-        'reverse': False,
-        'players': [],
-        'points_to_win': points_to_win,
-        'is_winner': False
-    }
-    add_player_to_game(game_data, player_name, True)
-    save_state(game_data)
-    return game_data
 
 
 def reclaim_stack(game_data):
@@ -175,7 +156,6 @@ def start_game(game_data):
     admin_player['active'] = True
     game_data['active'] = True
     game_data['started_at'] = serialize_datetime(datetime.utcnow())
-    save_state(game_data)
 
 
 def get_state(game_id, player_id):
@@ -280,11 +260,36 @@ def set_game_winner(game_data, player):
     player['game_winner'] = True
 
 
+def create_new_game(game_name, player_name, points_to_win=POINTS_TO_WIN,
+                    max_players=MAX_PLAYERS):
+    game_id = generate_id(GAME_ID_LENGTH)
+    game_data = {
+        'id': game_id,
+        'name': game_name,
+        'deck': create_deck(),
+        'stack': [],
+        'created_at': serialize_datetime(datetime.utcnow()),
+        'started_at': None,
+        'ended_at': None,
+        'active': False,
+        'reverse': False,
+        'max_players': max_players,
+        'players': [],
+        'points_to_win': points_to_win,
+        'is_winner': False
+    }
+    add_player_to_game(game_data, player_name, True)
+    save_state(game_data)
+    return game_data
+
+
 def play_card(game_id, player_id, card_id, selected_color=None):
     """ Attempts to play card, returns True if succeeds """
     game_data = load_state(game_id)
+    if not game_data:
+        return False
     players = game_data.get('players')
-    if not players or player_id not in [p['id'] for p in players]:
+    if player_id not in [p['id'] for p in players]:
         return False
     player = [p for p in players if p['id'] == player_id][0]
     if not player['active']:
@@ -314,8 +319,10 @@ def play_card(game_id, player_id, card_id, selected_color=None):
 def player_draw_card(game_id, player_id):
     """ Attempts to draw a card for the player, returns True if successful """
     game_data = load_state(game_id)
+    if not game_data:
+        return False
     players = game_data.get('players')
-    if not players or player_id not in [p['id'] for p in players]:
+    if player_id not in [p['id'] for p in players]:
         return False
     player = [p for p in players if p['id'] == player_id][0]
     if not player['active']:
@@ -325,3 +332,20 @@ def player_draw_card(game_id, player_id):
     draw_card(game_data, player)
     save_state(game_data)
     return True
+
+
+def join_game(game_id, name):
+    """ Attempts to join a new player to the game.
+        Returns player if successful, otherwise None
+    """
+    game_data = load_state(game_id)
+    if not game_data:
+        return None
+    if game_data['active']:
+        return None
+    if game_data['ended_at']:
+        return None
+    player = add_player_to_game(game_data, name)
+    if player:
+        save_state(game_data)
+    return player

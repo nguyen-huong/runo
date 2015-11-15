@@ -73,6 +73,14 @@ class GameTestCase(unittest.TestCase):
         self.assertIsNotNone(player)
         self.assertEqual(len(game_data['players']), 2)
 
+    def test_add_player_to_game_fails_when_max_players_reached(self):
+        game_data = create_new_game('MyGame', 'PlayerOne', max_players=2)
+        player2 = add_player_to_game(game_data, 'PlayerTwo')
+        self.assertIsNotNone(player2)
+        player3 = add_player_to_game(game_data, 'PlayerThree')
+        self.assertIsNone(player3)
+        self.assertEqual(len(game_data['players']), 2)
+
     def test_each_player_has_seven_cards_after_game_starts(self):
         game_data = create_new_game('MyGame', 'PlayerOne')
         add_player_to_game(game_data, 'PlayerTwo')
@@ -119,6 +127,7 @@ class GameTestCase(unittest.TestCase):
         game_data = create_new_game('MyGame', 'PlayerOne')
         add_player_to_game(game_data, 'PlayerTwo')
         start_game(game_data)
+        save_state(game_data)
         game_id = game_data['id']
         player_one_id = game_data['players'][0]['id']
         result = get_state(game_id, player_one_id)
@@ -129,6 +138,7 @@ class GameTestCase(unittest.TestCase):
         game_data = create_new_game('MyGame', 'PlayerOne')
         add_player_to_game(game_data, 'PlayerTwo')
         start_game(game_data)
+        save_state(game_data)
         game_id = game_data['id']
         player_one_id = game_data['players'][0]['id']
         result = get_state(game_id, player_one_id)
@@ -614,7 +624,7 @@ class GameTestCase(unittest.TestCase):
         self.assertTrue(player['game_winner'])
 
     def test_play_card_player_goes_out_check_active_player_next_round(self):
-        game_data = create_new_game('MyGame', 'PlayerOne', 10000)
+        game_data = create_new_game('MyGame', 'PlayerOne', points_to_win=10000)
         add_player_to_game(game_data, 'PlayerTwo')
         add_player_to_game(game_data, 'PlayerThree')
         add_player_to_game(game_data, 'PlayerFour')
@@ -730,7 +740,7 @@ class GameTestCase(unittest.TestCase):
         self.assertTrue(winner['game_winner'])
 
     def test_set_round_winner_without_set_game_winner_due_to_high_goal(self):
-        game_data = create_new_game('MyGame', 'PlayerOne', 451)
+        game_data = create_new_game('MyGame', 'PlayerOne', points_to_win=451)
         add_player_to_game(game_data, 'PlayerTwo')
         add_player_to_game(game_data, 'PlayerThree')
         add_player_to_game(game_data, 'PlayerFour')
@@ -819,6 +829,40 @@ class GameTestCase(unittest.TestCase):
         save_state(game_data)
         result = player_draw_card(game_data['id'], player['id'])
         self.assertFalse(result)
+
+    def test_join_game(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        save_state(game_data)
+        result = join_game(game_data['id'], 'PlayerTwo')
+        self.assertIsNotNone(result)
+
+    def test_join_game_fails_when_game_id_not_valid(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        save_state(game_data)
+        result = join_game('bad_game_id', 'PlayerTwo')
+        self.assertIsNone(result)
+
+    def test_join_game_fails_when_game_is_already_active(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        start_game(game_data)
+        save_state(game_data)
+        result = join_game(game_data['id'], 'PlayerTwo')
+        self.assertIsNone(result)
+
+    def test_join_game_fails_when_game_is_over(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        game_data['ended_at'] = 'sometime'
+        save_state(game_data)
+        result = join_game(game_data['id'], 'PlayerTwo')
+        self.assertIsNone(result)
+
+    def test_join_game_fails_when_max_players_reached(self):
+        game_data = create_new_game('MyGame', 'PlayerOne', max_players=1)
+        save_state(game_data)
+        result = join_game(game_data['id'], 'PlayerTwo')
+        self.assertIsNone(result)
+
+
 
 if __name__ == '__main__':
     tests = unittest.TestLoader().loadTestsFromTestCase(GameTestCase)
