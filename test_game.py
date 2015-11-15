@@ -1,6 +1,6 @@
 import os
 import unittest
-from uno import *
+from runo import *
 
 TEST_GAME_FILE_PATH = 'games_test'
 

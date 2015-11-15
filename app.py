@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request
-from uno import admin_start_game, create_new_game, get_state, join_game, \
+from runo import admin_start_game, create_new_game, get_state, join_game, \
     leave_game, play_card, player_draw_card
 
 app = Flask(__name__)
