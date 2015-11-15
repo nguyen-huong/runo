@@ -42,6 +42,15 @@ class GameTestCase(unittest.TestCase):
         game_data = create_new_game('MyGame', 'PlayerOne')
         self.assertFalse(game_data['reverse'])
 
+    def test_started_at_is_none_before_game_starts(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        self.assertIsNone(game_data['started_at'])
+
+    def test_started_at_is_not_none_after_game_starts(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        start_game(game_data)
+        self.assertIsNotNone(game_data['started_at'])
+
     def test_stack_has_no_cards_before_game_starts(self):
         game_data = create_new_game('MyGame', 'PlayerOne')
         self.assertEqual(len(game_data['stack']), 0)
