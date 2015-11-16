@@ -713,7 +713,7 @@ class GameTestCase(unittest.TestCase):
         active_player = get_active_player(game_data)
         self.assertEqual(active_player, game_data['players'][1])
 
-    def test_play_card_fails_when_illegal_wild_draw_for_is_played(self):
+    def test_play_card_fails_when_illegal_wild_draw_four_is_played(self):
         game_data = create_new_game('MyGame', 'PlayerOne')
         add_player_to_game(game_data, 'PlayerTwo')
         start_game(game_data)
@@ -733,6 +733,20 @@ class GameTestCase(unittest.TestCase):
         # Should fail since the WILD_DRAW_FOUR should be allowed if the
         # player has a matching color card that could be played.
         self.assertFalse(result)
+
+    def test_play_card_draw_four_card_with_same_color_as_top_of_stack(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        start_game(game_data)
+        player = game_data['players'][0]
+        player['hand'] = []
+        player['hand'].append(create_card('WILD_DRAW_FOUR'))
+        card = player['hand'][0]
+        # Set top of stack to arbitrary red card
+        game_data['stack'][-1]['value'] = '5'
+        game_data['stack'][-1]['color'] = 'RED'
+        save_state(game_data)
+        result = play_card(game_data['id'], player['id'], card['id'], 'RED')
+        self.assertTrue(result)
 
     def test_count_points_for_player(self):
         game_data = create_new_game('MyGame', 'PlayerOne')

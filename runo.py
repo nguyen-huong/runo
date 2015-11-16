@@ -344,13 +344,13 @@ def play_card(game_id, player_id, card_id, selected_color=None):
     card = [c for c in player['hand'] if c['id'] == card_id][0]
     if not can_play_card(game_data, card):
         return False
+    if card['value'] == 'WILD_DRAW_FOUR':
+        if player_has_matching_color_card(game_data, player):
+            return False
     if card['value'] in SPECIAL_CARDS:
         if selected_color not in CARD_COLORS:
             return False
         card['color'] = selected_color
-    if card['value'] == 'WILD_DRAW_FOUR':
-        if player_has_matching_color_card(game_data, player):
-            return False
     player['hand'].remove(card)
     game_data['stack'].append(card)
     if card['value'] == 'REVERSE':
