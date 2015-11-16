@@ -105,11 +105,16 @@ def add_player_to_game(game_data, player_name, admin=False):
     return player
 
 
-def reclaim_stack(game_data):
-    # Take the stack and make it the deck, remove the top card and put
-    # it back in the empty stack, then shuffle the deck.
+def reclaim_stack(game_data, is_deal=False):
+    # Take the stack and make it the deck. If this is not happening during
+    # a deal, remove the top card and put it back in the empty stack so the
+    # game can continue. Otherwise, leave the stack empty. In either case,
+    # shuffle the deck.
     game_data['deck'] = game_data['stack']
-    game_data['stack'] = [game_data['deck'].pop()]
+    if not is_deal:
+        game_data['stack'] = [game_data['deck'].pop()]
+    else:
+        game_data['stack'] = []
     random.shuffle(game_data['deck'])
     # Scrub the color from all WILD and WILD_DRAW_FOUR cards.
     cards = [wc for wc in game_data['deck'] if wc['value'] in SPECIAL_CARDS]
@@ -127,11 +132,11 @@ def reclaim_player_cards(game_data):
     game_data['stack'] = player_cards + game_data['stack']
 
 
-def draw_card(game_data, player):
+def draw_card(game_data, player, is_deal=False):
     deck = game_data['deck']
     player['hand'].append(deck.pop())
     if not deck:
-        reclaim_stack(game_data)
+        reclaim_stack(game_data, is_deal)
 
 
 def draw_two(game_data, player):
@@ -147,7 +152,7 @@ def draw_four(game_data, player):
 def deal_cards(game_data):
     for player in game_data['players']:
         for __ in range(7):
-            draw_card(game_data, player)
+            draw_card(game_data, player, is_deal=True)
     # Look for a non-special card in the deck. Once found, move it
     # from the deck to the discard pile (stack).
     for card in reversed(game_data['deck']):

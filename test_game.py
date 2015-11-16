@@ -518,6 +518,13 @@ class GameTestCase(unittest.TestCase):
             start_game(game_data)
             self.assertFalse(game_data['stack'])
 
+    def test_deal_cards_claims_entire_stack(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        game_data['deck'] = [create_card('4', 'RED')]
+        game_data['stack'] = [create_card('4', 'BLUE') for __ in range(8)]
+        deal_cards(game_data)
+        self.assertEqual(len(game_data['stack']), 1)
+
     def test_play_card(self):
         game_data = create_new_game('MyGame', 'PlayerOne')
         add_player_to_game(game_data, 'PlayerTwo')
