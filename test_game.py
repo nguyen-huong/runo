@@ -428,10 +428,35 @@ class GameTestCase(unittest.TestCase):
         game_data = create_new_game('MyGame', 'PlayerOne')
         start_game(game_data)
         game_data['deck'] = []
-        game_data['stack'] = ['card', 'card', 'card', 'top']
+        game_data['stack'] = [create_card('WILD') for __ in range(4)]
+        top = game_data['stack'][-1]
+        to_be_reclaimed = game_data['stack'][0:3]
         reclaim_stack(game_data)
-        self.assertEqual(game_data['stack'], ['top'])
-        self.assertEqual(game_data['deck'], ['card', 'card', 'card'])
+        self.assertEqual(game_data['stack'], [top])
+        self.assertEqual(len(to_be_reclaimed), len(game_data['deck']))
+        for card in to_be_reclaimed:
+            self.assertIn(card, game_data['deck'])
+
+    def test_reclaim_stack_scrubs_wild_cards(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        start_game(game_data)
+        cards = []
+        cards += [create_card('WILD', 'GREEN') for __ in range(4)]
+        cards += [create_card('WILD_DRAW_FOUR', 'GREEN') for __ in range(4)]
+        game_data['stack'] = cards
+        reclaim_stack(game_data)
+        for card in game_data['deck']:
+            self.assertIsNone(card['color'])
+
+    def test_reclaim_stack_does_not_scrub_normal_cards(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        start_game(game_data)
+        cards = []
+        cards += [create_card('0', 'GREEN') for __ in range(4)]
+        game_data['stack'] = cards
+        reclaim_stack(game_data)
+        for card in game_data['deck']:
+            self.assertIsNotNone(card['color'])
 
     def test_draw_card(self):
         game_data = create_new_game('MyGame', 'PlayerOne')
@@ -443,37 +468,46 @@ class GameTestCase(unittest.TestCase):
     def test_draw_cards_triggers_reclaim_stack(self):
         game_data = create_new_game('MyGame', 'PlayerOne')
         start_game(game_data)
-        game_data['deck'] = ['card', 'card', 'card']
-        game_data['stack'] = ['card', 'card', 'card', 'top']
+        game_data['deck'] = [create_card('WILD') for __ in range(3)]
+        game_data['stack'] = [create_card('WILD') for __ in range(4)]
+        top = game_data['stack'][-1]
+        to_be_reclaimed = game_data['stack'][0:3]
         player = game_data['players'][0]
         draw_card(game_data, player)
         draw_card(game_data, player)
         draw_card(game_data, player)
-        self.assertEqual(len(player['hand']), 10)
-        self.assertEqual(game_data['stack'], ['top'])
-        self.assertEqual(game_data['deck'], ['card', 'card', 'card'])
+        self.assertEqual(game_data['stack'], [top])
+        self.assertEqual(len(to_be_reclaimed), len(game_data['deck']))
+        for card in to_be_reclaimed:
+            self.assertIn(card, game_data['deck'])
 
     def test_draw_two_triggers_reclaim_stack(self):
         game_data = create_new_game('MyGame', 'PlayerOne')
         start_game(game_data)
-        game_data['deck'] = ['card', 'card']
-        game_data['stack'] = ['card', 'card', 'card', 'top']
+        game_data['deck'] = [create_card('WILD') for __ in range(2)]
+        game_data['stack'] = [create_card('WILD') for __ in range(4)]
+        top = game_data['stack'][-1]
+        to_be_reclaimed = game_data['stack'][0:3]
         player = game_data['players'][0]
         draw_two(game_data, player)
-        self.assertEqual(len(player['hand']), 9)
-        self.assertEqual(game_data['stack'], ['top'])
-        self.assertEqual(game_data['deck'], ['card', 'card', 'card'])
+        self.assertEqual(game_data['stack'], [top])
+        self.assertEqual(len(to_be_reclaimed), len(game_data['deck']))
+        for card in to_be_reclaimed:
+            self.assertIn(card, game_data['deck'])
 
     def test_draw_four_triggers_reclaim_stack(self):
         game_data = create_new_game('MyGame', 'PlayerOne')
         start_game(game_data)
-        game_data['deck'] = ['card', 'card', 'card', 'card']
-        game_data['stack'] = ['card', 'card', 'card', 'top']
+        game_data['deck'] = [create_card('WILD') for __ in range(4)]
+        game_data['stack'] = [create_card('WILD') for __ in range(4)]
+        top = game_data['stack'][-1]
+        to_be_reclaimed = game_data['stack'][0:3]
         player = game_data['players'][0]
         draw_four(game_data, player)
-        self.assertEqual(len(player['hand']), 11)
-        self.assertEqual(game_data['stack'], ['top'])
-        self.assertEqual(game_data['deck'], ['card', 'card', 'card'])
+        self.assertEqual(game_data['stack'], [top])
+        self.assertEqual(len(to_be_reclaimed), len(game_data['deck']))
+        for card in to_be_reclaimed:
+            self.assertIn(card, game_data['deck'])
 
     def test_deal_cards_avoid_starting_stack_with_special_cards(self):
         game_data = create_new_game('MyGame', 'PlayerOne')

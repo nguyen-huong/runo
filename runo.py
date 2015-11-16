@@ -111,6 +111,10 @@ def reclaim_stack(game_data):
     game_data['deck'] = game_data['stack']
     game_data['stack'] = [game_data['deck'].pop()]
     random.shuffle(game_data['deck'])
+    # Scrub the color from all WILD and WILD_DRAW_FOUR cards.
+    cards = [wc for wc in game_data['deck'] if wc['value'] in SPECIAL_CARDS]
+    for card in cards:
+        card['color'] = None
 
 
 def reclaim_player_cards(game_data):
