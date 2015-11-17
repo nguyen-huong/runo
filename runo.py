@@ -172,21 +172,6 @@ def start_game(game_data):
     game_data['started_at'] = serialize_datetime(datetime.utcnow())
 
 
-def get_state(game_id, player_id):
-    game_data = load_state(game_id)
-    players = game_data.get('players')
-    if not players or player_id not in [p['id'] for p in players]:
-        return {}
-    for p in players:
-        if p['id'] != player_id:
-            p['id'] = None
-            for card in p['hand']:
-                card['color'] = None
-                card['id'] = None
-                card['value'] = None
-    return game_data
-
-
 def can_play_card(game_data, card):
     if card['value'] in SPECIAL_CARDS:
         return True
@@ -462,3 +447,18 @@ def admin_start_game(game_id, player_id):
     start_game(game_data)
     save_state(game_data)
     return True
+
+
+def get_state(game_id, player_id):
+    game_data = load_state(game_id)
+    players = game_data.get('players')
+    if not players or player_id not in [p['id'] for p in players]:
+        return {}
+    for p in players:
+        if p['id'] != player_id:
+            p['id'] = None
+            for card in p['hand']:
+                card['color'] = None
+                card['id'] = None
+                card['value'] = None
+    return game_data
