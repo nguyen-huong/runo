@@ -878,7 +878,7 @@ class GameTestCase(unittest.TestCase):
         set_game_winner(game_data, game_data['players'][0])
         self.assertIsNotNone(game_data['ended_at'])
 
-    def test_reclaim_player_cards(self):
+    def test_reclaim_cards(self):
         game_data = create_new_game('MyGame', 'PlayerOne')
         add_player_to_game(game_data, 'PlayerTwo')
         add_player_to_game(game_data, 'PlayerThree')
@@ -886,7 +886,7 @@ class GameTestCase(unittest.TestCase):
         start_game(game_data)
         self.assertEqual(len(game_data['deck']), 79)
         top_card = game_data['stack'][-1]
-        reclaim_player_cards(game_data)
+        reclaim_cards(game_data)
         self.assertEqual(len(game_data['stack']), 29)
         self.assertEqual(top_card, game_data['stack'][-1])
         for player in game_data['players']:
@@ -1225,14 +1225,6 @@ class GameTestCase(unittest.TestCase):
         result = leave_game(game_data['id'], 'bad_player_id')
         self.assertFalse(result)
 
-    def test_leave_game_fails_when_game_is_already_active(self):
-        game_data = create_new_game('MyGame', 'PlayerOne')
-        start_game(game_data)
-        save_state(game_data)
-        player = game_data['players'][0]
-        result = leave_game(game_data['id'], player['id'])
-        self.assertFalse(result)
-
     def test_leave_game_fails_when_game_is_over(self):
         game_data = create_new_game('MyGame', 'PlayerOne')
         game_data['ended_at'] = 'sometime'
@@ -1241,14 +1233,171 @@ class GameTestCase(unittest.TestCase):
         result = leave_game(game_data['id'], player['id'])
         self.assertFalse(result)
 
-    def test_leave_game_ends_when_admin_leaves(self):
+    def test_leave_game_reassign_admin_role_when_admin_leaves(self):
         game_data = create_new_game('MyGame', 'PlayerOne')
+        add_player_to_game(game_data, 'PlayerTwo')
+        add_player_to_game(game_data, 'PlayerThree')
         save_state(game_data)
-        player = game_data['players'][0]
-        result = leave_game(game_data['id'], player['id'])
-        self.assertTrue(result)
+        # Verify that PlayerTwo is not admin
+        self.assertFalse(game_data['players'][1]['admin'])
+        # Remove the first player, which is the admin
+        leave_game(game_data['id'], game_data['players'][0]['id'])
         game_data = load_state(game_data['id'])
-        self.assertTrue(game_data['ended_at'])
+        # PlayerTwo should now be in the first position
+        self.assertEqual(game_data['players'][0]['name'], 'PlayerTwo')
+        # PlayerTwo should now be admin
+        self.assertTrue(game_data['players'][0]['admin'])
+
+    def test_leave_game_reassign_admin_role_when_admin_leaves_active_game(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        add_player_to_game(game_data, 'PlayerTwo')
+        add_player_to_game(game_data, 'PlayerThree')
+        start_game(game_data)
+        # Verify that PlayerTwo is not admin
+        self.assertFalse(game_data['players'][1]['admin'])
+        # Make PlayerTwo the active player
+        activate_next_player(game_data, card_drawn=True)
+        save_state(game_data)
+        # Remove the first player, which is the admin
+        leave_game(game_data['id'], game_data['players'][0]['id'])
+        game_data = load_state(game_data['id'])
+        # PlayerTwo should now be in the first position
+        self.assertEqual(game_data['players'][0]['name'], 'PlayerTwo')
+        # PlayerTwo should now be admin
+        self.assertTrue(game_data['players'][0]['admin'])
+        # PlayerTwo should still be active
+        self.assertTrue(game_data['players'][0]['active'])
+
+    def test_leave_game_activate_next_player_when_active_player_leaves(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        add_player_to_game(game_data, 'PlayerTwo')
+        add_player_to_game(game_data, 'PlayerThree')
+        start_game(game_data)
+        # Make PlayerTwo the active player
+        activate_next_player(game_data, card_drawn=True)
+        # PlayerTwo should be active now
+        self.assertTrue(game_data['players'][1]['active'])
+        save_state(game_data)
+        # Remove PlayerTwo, which is the active player
+        leave_game(game_data['id'], game_data['players'][1]['id'])
+        game_data = load_state(game_data['id'])
+        # PlayerThree should now be in the second position
+        self.assertEqual(game_data['players'][1]['name'], 'PlayerThree')
+        # PlayerThree should now be active
+        self.assertTrue(game_data['players'][1]['active'])
+
+    def test_leave_game_no_activate_next_player_when_game_not_started(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        add_player_to_game(game_data, 'PlayerTwo')
+        add_player_to_game(game_data, 'PlayerThree')
+        save_state(game_data)
+        # Remove a player
+        leave_game(game_data['id'], game_data['players'][0]['id'])
+        game_data = load_state(game_data['id'])
+        # Verify that no player is wrongly activated
+        for player in game_data['players']:
+            self.assertFalse(player['active'])
+
+    def test_leave_game_when_active_admin_leaves(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        add_player_to_game(game_data, 'PlayerTwo')
+        add_player_to_game(game_data, 'PlayerThree')
+        start_game(game_data)
+        # Verify that PlayerTwo is not admin
+        self.assertFalse(game_data['players'][1]['admin'])
+        # Verify that PlayerTwo is not active
+        self.assertFalse(game_data['players'][1]['active'])
+        save_state(game_data)
+        # Remove the first player, which is the active player and admin
+        leave_game(game_data['id'], game_data['players'][0]['id'])
+        game_data = load_state(game_data['id'])
+        # PlayerTwo should now be in the first position
+        self.assertEqual(game_data['players'][0]['name'], 'PlayerTwo')
+        # PlayerTwo should now be admin
+        self.assertTrue(game_data['players'][0]['admin'])
+        # PlayerTwo should still be active
+        self.assertTrue(game_data['players'][0]['active'])
+
+    def test_leave_game_no_players_remaining_in_game_not_yet_started(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        add_player_to_game(game_data, 'PlayerTwo')
+        save_state(game_data)
+        # Remove both players
+        leave_game(game_data['id'], game_data['players'][0]['id'])
+        leave_game(game_data['id'], game_data['players'][1]['id'])
+        game_data = load_state(game_data['id'])
+        # Players list should now be empty
+        self.assertFalse(game_data['players'])
+        # Game should have ended
+        self.assertIsNotNone(game_data['ended_at'])
+
+    def test_leave_game_one_player_remaining_in_active_game(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        add_player_to_game(game_data, 'PlayerTwo')
+        add_player_to_game(game_data, 'PlayerThree')
+        start_game(game_data)
+        save_state(game_data)
+        # Remove first two players, leaving only PlayerThree
+        leave_game(game_data['id'], game_data['players'][0]['id'])
+        leave_game(game_data['id'], game_data['players'][1]['id'])
+        game_data = load_state(game_data['id'])
+        # Players list should only contain one player
+        self.assertEqual(len(game_data['players']), 1)
+        # PlayerThree should be in the first position
+        self.assertEqual(game_data['players'][0]['name'], 'PlayerThree')
+        # Game should no longer be active
+        self.assertFalse(game_data['active'])
+        # Game should have ended
+        self.assertIsNotNone(game_data['ended_at'])
+
+    def test_leave_game_reclaim_cards_when_player_leaves_active_game(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        add_player_to_game(game_data, 'PlayerTwo')
+        add_player_to_game(game_data, 'PlayerThree')
+        start_game(game_data)
+        # Set PlayerOne's hand
+        hand = []
+        hand.append(create_card('1', 'RED'))
+        hand.append(create_card('2', 'BLUE'))
+        hand.append(create_card('3', 'GREEN'))
+        hand.append(create_card('4', 'YELLOW'))
+        game_data['players'][0]['hand'] = hand
+        save_state(game_data)
+        # Remove PlayerOne
+        leave_game(game_data['id'], game_data['players'][0]['id'])
+        game_data = load_state(game_data['id'])
+        # Bottom of stack should contain the removed player's cards
+        bottom_cards = game_data['stack'][:4]
+        self.assertEqual(bottom_cards, hand)
+
+    def test_leave_game_reclaim_cards_when_two_players_leave_active_game(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        add_player_to_game(game_data, 'PlayerTwo')
+        add_player_to_game(game_data, 'PlayerThree')
+        add_player_to_game(game_data, 'PlayerFour')
+        start_game(game_data)
+        # Set PlayerOne's hand
+        hand1 = []
+        hand1.append(create_card('1', 'RED'))
+        hand1.append(create_card('2', 'BLUE'))
+        hand1.append(create_card('3', 'GREEN'))
+        hand1.append(create_card('4', 'YELLOW'))
+        game_data['players'][0]['hand'] = hand1
+        # Set PlayerTwo's hand
+        hand2 = []
+        hand2.append(create_card('5', 'YELLOW'))
+        hand2.append(create_card('6', 'GREEN'))
+        hand2.append(create_card('7', 'BLUE'))
+        hand2.append(create_card('8', 'RED'))
+        game_data['players'][1]['hand'] = hand2
+        save_state(game_data)
+        # Remove PlayerOne and PlayerTwo
+        leave_game(game_data['id'], game_data['players'][0]['id'])
+        leave_game(game_data['id'], game_data['players'][1]['id'])
+        game_data = load_state(game_data['id'])
+        # Bottom of stack should contain the cards for both removed players
+        self.assertEqual(game_data['stack'][:4], hand2)
+        self.assertEqual(game_data['stack'][4:8], hand1)
 
     def test_admin_start_game(self):
         game_data = create_new_game('MyGame', 'PlayerOne')

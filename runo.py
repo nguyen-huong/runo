@@ -122,14 +122,16 @@ def reclaim_stack(game_data, is_deal=False):
         card['color'] = None
 
 
-def reclaim_player_cards(game_data):
-    # Collect cards from all players and insert them into the bottom
-    # of the stack.
-    player_cards = []
+def reclaim_player_cards(game_data, player):
+    # Collect player's cards and inserts them into the bottom of the stack.
+    game_data['stack'] = player['hand'] + game_data['stack']
+    player['hand'] = []
+
+
+def reclaim_cards(game_data):
+    # Collects cards from all players.
     for player in game_data['players']:
-        player_cards += player['hand']
-        player['hand'] = []
-    game_data['stack'] = player_cards + game_data['stack']
+        reclaim_player_cards(game_data, player)
 
 
 def draw_card(game_data, player, is_deal=False):
@@ -217,7 +219,7 @@ def get_active_player(game_data):
         return None
 
 
-def activate_next_player(game_data, card_drawn=False):
+def activate_next_player(game_data, card_drawn=False, player_quit=False):
     active_player = get_active_player(game_data)
     active_player['active'] = False
     active_index = game_data['players'].index(active_player)
@@ -231,7 +233,7 @@ def activate_next_player(game_data, card_drawn=False):
         player_iter.next()
     # If the last player was able to play a card, execute additional logic
     # to determine any consequences of the card played.
-    if not card_drawn:
+    if not card_drawn or player_quit:
         num_players = len(game_data['players'])
         last_card = game_data['stack'][-1]
         next_player = player_iter.next()
@@ -279,7 +281,7 @@ def set_round_winner(game_data, player):
     if player['points'] >= game_data['points_to_win']:
         set_game_winner(game_data, player)
     else:
-        reclaim_player_cards(game_data)
+        reclaim_cards(game_data)
         deal_cards(game_data)
 
 
@@ -414,14 +416,26 @@ def leave_game(game_id, player_id):
     players = game_data.get('players')
     if player_id not in [p['id'] for p in players]:
         return False
-    if game_data['active']:
-        return False
     if game_data['ended_at']:
         return False
-    player = [p for p in players if p['id'] == player_id][0]
-    game_data['players'].remove(player)
-    if player['admin']:
+    quitter = [p for p in players if p['id'] == player_id][0]
+    if quitter['active']:
+        activate_next_player(game_data, player_quit=True)
+    game_data['players'].remove(quitter)
+    # If the quitter was the admin and there is at least one player
+    # remaining, reassign the admin role to the first position.
+    if quitter['admin'] and game_data['players']:
+        game_data['players'][0]['admin'] = True
+    # If one player remaining in an active game, end the game now.
+    if game_data['active'] and len(game_data['players']) == 1:
+        game_data['active'] = False
         game_data['ended_at'] = serialize_datetime(datetime.utcnow())
+    # If no players remaining, end the game now.
+    if not game_data['players']:
+        game_data['ended_at'] = serialize_datetime(datetime.utcnow())
+    # If game is still active at this point, reclaim the quitter's cards.
+    if game_data['active']:
+        reclaim_player_cards(game_data, quitter)
     save_state(game_data)
     return True
 
