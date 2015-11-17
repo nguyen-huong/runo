@@ -1345,6 +1345,8 @@ class GameTestCase(unittest.TestCase):
         self.assertEqual(len(game_data['players']), 1)
         # PlayerThree should be in the first position
         self.assertEqual(game_data['players'][0]['name'], 'PlayerThree')
+        # PlayerThree should not be active
+        self.assertFalse(game_data['players'][0]['active'])
         # Game should no longer be active
         self.assertFalse(game_data['active'])
         # Game should have ended

@@ -414,6 +414,7 @@ def leave_game(game_id, player_id):
     # If one player remaining in an active game, end the game now.
     if game_data['active'] and len(game_data['players']) == 1:
         game_data['active'] = False
+        game_data['players'][0]['active'] = False
         game_data['ended_at'] = serialize_datetime(datetime.utcnow())
     # If no players remaining, end the game now.
     if not game_data['players']:
