@@ -455,11 +455,18 @@ def get_state(game_id, player_id):
     players = game_data.get('players')
     if not players or player_id not in [p['id'] for p in players]:
         return {}
+    game_data['draw_pile_size'] = len(game_data['deck'])
+    game_data.pop('deck')
+    last_discard = game_data['stack'][-1] if game_data['stack'] else {}
+    game_data['discard_pile_size'] = len(game_data['stack'])
+    game_data.pop('stack')
     for p in players:
+        p['hand_size'] = len(p['hand'])
         if p['id'] != player_id:
             p['id'] = None
-            for card in p['hand']:
-                card['color'] = None
-                card['id'] = None
-                card['value'] = None
+            p.pop('hand')
+            # for card in p['hand']:
+            #     card['color'] = None
+            #     card['id'] = None
+            #     card['value'] = None
     return game_data
