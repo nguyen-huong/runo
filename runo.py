@@ -465,8 +465,4 @@ def get_state(game_id, player_id):
         if p['id'] != player_id:
             p['id'] = None
             p.pop('hand')
-            # for card in p['hand']:
-            #     card['color'] = None
-            #     card['id'] = None
-            #     card['value'] = None
     return game_data
