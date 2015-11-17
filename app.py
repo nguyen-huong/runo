@@ -1,8 +1,13 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, render_template, request
 from runo import admin_start_game, create_new_game, get_state, join_game, \
     leave_game, play_card, player_draw_card
 
 app = Flask(__name__)
+
+
+@app.route('/')
+def index_route():
+    return render_template('index.html')
 
 
 @app.route('/newgame')

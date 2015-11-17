@@ -1,0 +1,102 @@
+body {
+    font-family: monospace;
+}
+
+input {
+    font-family: monospace;
+    margin: 0 0 0.5em;
+}
+
+span {
+    font-weight: bold;
+}
+
+#container {
+    max-width: 900px;
+}
+
+#controls {
+    width: 100%;
+    border: 1px solid lightgray;
+    margin: 1em 0;
+}
+
+#actions {
+    width: 95%;
+    font-size: 1.2em;
+    border-bottom: 1px solid lightgray;
+    padding-bottom: 1em;
+    margin: 1em auto;
+}
+
+#variables {
+    width: 95%;
+    font-size: 0.8em;
+    margin: 1em auto;
+}
+
+#game {
+    width: 100%;
+    font-size: 0.8em;
+    border: 1px solid lightgray;
+    margin: 1em 0;
+}
+
+#gameinfocontainer {
+    width: 95%;
+    background-color: #e8e8e8;
+    margin: 1em auto;
+}
+
+#gameinfo {
+    display: inline-block;
+    width: 40%;
+}
+
+#cardinfo {
+    display: inline-block;
+    vertical-align: top;
+    width: 40%;
+}
+
+#discard {
+    box-sizing: border-box;
+    display: inline-block;
+    vertical-align: top;
+    text-align: right;
+    width: 20%;
+    padding: 1em;
+}
+
+#playerinfo {
+    width: 95%;
+    margin: 1em auto;
+}
+
+.player {
+    background-color: #bdbdbd;
+    margin: 1em 0;
+}
+
+.hand {
+    box-sizing: border-box;
+    width: 100%;
+    background-color: lightgray;
+    padding: 1em;
+}
+
+.card {
+    box-sizing: border-box;
+    vertical-align: middle;
+    display: inline-block;
+    width: 80px;
+    height: 110px;
+    text-align: center;
+    font-size: 1.1em;
+    font-weight: bold;
+    background-color: white;
+    border: 3px solid black;
+    border-radius: 10px;
+    padding: 20px 10px;
+    margin: 0.2em;
+}
