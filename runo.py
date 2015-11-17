@@ -58,6 +58,18 @@ def generate_id(length):
     )
 
 
+def generate_digits(length):
+    return ''.join(random.choice(string.digits) for x in xrange(length))
+
+
+def generate_game_name():
+    return DEFAULT_GAME_NAME + generate_digits(5)
+
+
+def generate_player_name():
+    return DEFAULT_PLAYER_NAME + generate_digits(5)
+
+
 def serialize_datetime(dt):
     return str(dt)
 
@@ -281,8 +293,8 @@ def create_new_game(game_name, player_name, points_to_win=POINTS_TO_WIN,
     """ Creates a new game.
         Returns the game data dictionary.
     """
-    game_name = game_name or DEFAULT_GAME_NAME
-    player_name = player_name or DEFAULT_PLAYER_NAME
+    game_name = game_name or generate_game_name()
+    player_name = player_name or generate_player_name()
     points_to_win = points_to_win or POINTS_TO_WIN
     min_players = min_players or MIN_PLAYERS
     max_players = max_players or MAX_PLAYERS
@@ -377,7 +389,7 @@ def join_game(game_id, name):
     """ Attempts to join a new player to the game.
         Returns player if successful, otherwise None.
     """
-    name = name or DEFAULT_PLAYER_NAME
+    name = name or generate_player_name()
     game_data = load_state(game_id)
     if not game_data:
         return None
