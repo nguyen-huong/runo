@@ -280,10 +280,12 @@ def set_round_winner(game_data, player):
     else:
         reclaim_cards(game_data)
         deal_cards(game_data)
+        activate_next_player(game_data)
 
 
 def set_game_winner(game_data, player):
     game_data['active'] = False
+    player['active'] = False
     game_data['ended_at'] = serialize_datetime(datetime.utcnow())
     player['game_winner'] = True
 
@@ -356,7 +358,8 @@ def play_card(game_id, player_id, card_id, selected_color=None):
         game_data['reverse'] = not game_data['reverse']
     if not player['hand']:
         set_round_winner(game_data, player)
-    activate_next_player(game_data)
+    else:
+        activate_next_player(game_data)
     save_state(game_data)
     return True
 

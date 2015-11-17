@@ -873,6 +873,17 @@ class GameTestCase(unittest.TestCase):
         set_game_winner(game_data, game_data['players'][0])
         self.assertFalse(game_data['active'])
 
+    def test_game_no_player_active_after_set_game_winner(self):
+        game_data = create_new_game('MyGame', 'PlayerOne', 451)
+        add_player_to_game(game_data, 'PlayerTwo')
+        start_game(game_data)
+        set_game_winner(game_data, game_data['players'][0])
+
+        self.assertFalse(game_data['players'][0]['active'])
+        self.assertFalse(game_data['players'][1]['active'])
+        # for player in game_data['players']:
+        #     self.assertFalse(player['active'])
+
     def test_ended_at_not_none_after_set_game_winner(self):
         game_data = create_new_game('MyGame', 'PlayerOne', 451)
         start_game(game_data)
