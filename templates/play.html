@@ -1,0 +1,254 @@
+{% extends 'layout.html' %}
+{% block body %}
+<script type="text/javascript">
+
+var start = function(e) {
+    $.getJSON($SCRIPT_ROOT + '/start', {
+        game_id: GAME_ID,
+        player_id: PLAYER_ID
+    }, function(data) {
+        getstateJSON();
+    });
+    return false;
+};
+
+var getstateJSON = function() {
+    $.getJSON($SCRIPT_ROOT + '/getstate', {
+        game_id: GAME_ID,
+        player_id: PLAYER_ID
+    }, showState);
+};
+
+var playcardJSON = function() {
+    $.getJSON($SCRIPT_ROOT + '/playcard', {
+        game_id: GAME_ID,
+        player_id: PLAYER_ID,
+        card_id: CARD_ID,
+        selected_color: SELECTED_COLOR
+    }, function(data) {
+        if (!data.result) {
+            alert('Failed to play that card.');
+        }
+        getstateJSON();
+    });
+};
+
+var playcard = function(e) {
+    playcardJSON();
+    return false;
+};
+
+var draw = function(e) {
+    $.getJSON($SCRIPT_ROOT + '/draw', {
+        game_id: GAME_ID,
+        player_id: PLAYER_ID
+    }, function(data) {
+        if (!data.result) {
+            alert('Failed to draw a card.');
+        }
+        getstateJSON();
+    });
+    return false;
+};
+
+var quit = function(e) {
+    $.getJSON($SCRIPT_ROOT + '/quit', {
+        game_id: GAME_ID,
+        player_id: PLAYER_ID
+    }, function(data) {
+        getstateJSON();
+    });
+    return false;
+};
+
+var getCurrentPlayer = function(game_info) {
+    var currentPlayer = null;
+    for (var i = 0; i < game_info.players.length; i++) {
+        if (game_info.players[i].id === PLAYER_ID) {
+            currentPlayer = game_info.players[i];
+            break;
+        }
+    }
+    return currentPlayer;
+};
+
+var getCardClickHandler = function(id) {
+    return function() {
+        CARD_ID = id;
+        playcardJSON();
+    };
+};
+
+var getWildCardClickHandler = function(id) {
+    return function() {
+        CARD_ID = id;
+        color = prompt('RED, BLUE, GREEN, YELLOW?').toUpperCase();
+        SELECTED_COLOR = color;
+        playcardJSON();
+    };
+};
+
+var makeCard = function(card, listen) {
+    cDiv = $('<div class="card"></div>');
+    // Install click handler.
+    if (listen) {
+        if (card.value === 'WILD' || card.value === 'WILD_DRAW_FOUR'){
+            cDiv.click(getWildCardClickHandler(card.id));
+        } else {
+            cDiv.click(getCardClickHandler(card.id));
+        }
+    }
+    // Set border color.
+    if (card.color) {
+        cDiv.css('border-color', card.color.toLowerCase())
+    }
+    // If the card value is a number, make font bigger.
+    if (!isNaN(card.value)) {
+        cDiv.css('font-size', '2em');
+    // Otherwise, remove underscores, if any, to make it more aesthetic.
+    } else {
+        card.value = card.value.split('_').join(' ');
+    }
+    cDiv.append(card.value);
+    return cDiv;
+};
+
+var showHand = function(hand, playerDiv, listen) {
+    var hDiv = $('<div class="hand"></div>');
+    for (var i = 0; i < hand.length; i++) {
+        hDiv.append(makeCard(hand[i], listen));
+    }
+    playerDiv.append(hDiv);
+};
+
+var makeDummyCard = function(text) {
+    var cDiv = $('<div class="card"></div>');
+    cDiv.css('font-size', '2em');
+    cDiv.css('background-color', 'black');
+    cDiv.css('color', 'white');
+    cDiv.append(text);
+    return cDiv;
+};
+
+var showDummyHand = function(num_cards, playerDiv) {
+    var hDiv = $('<div class="hand"></div>');
+    for (var i = 0; i < num_cards; i++) {
+        hDiv.append(makeDummyCard('RUNO'));
+    }
+    playerDiv.append(hDiv);
+};
+
+var showPlayer = function(player) {
+    var pDiv = $('<div class="player"></div>');
+    pDiv.append('Name: <span>' + player.name + '</span><br>');
+    pDiv.append('Active: <span>' + player.active + '</span><br>');
+    pDiv.append('Admin: <span>' + player.admin + '</span><br>');
+    pDiv.append('Game Winner: <span>' + player.game_winner + '</span><br>');
+    pDiv.append('Cards In Hand: <span>' + player.hand_size + '</span><br>');
+    pDiv.append('Points: <span>' + player.points + '</span><br>');
+    pDiv.append('Rounds Won: <span>' + player.rounds_won + '</span><br>');
+    if (player.draw_required) {
+        pDiv.append('<span>*** draw_required ***</span>');
+    }
+    if (player.hand_size > 0) {
+        if (player.hasOwnProperty('hand')) {
+            var listen = player.active;
+            showHand(player.hand, pDiv, listen);
+        } else {
+            showDummyHand(player.hand_size, pDiv);
+        }
+    }
+    if (player.active) {
+        pDiv.css('border', '5px solid #82f182');
+    }
+    $('#playerinfo').append(pDiv);
+};
+
+var showActions = function(game_info) {
+    var actions = $('#actions');
+    actions.empty();
+    var currentPlayer = getCurrentPlayer(game_info);
+    if (currentPlayer.admin && !game_info.active && !gameinfo.ended_at) {
+        var startLink = $('<a href="#">Start</a>')
+        startLink.bind('click', start);
+        actions.append(startLink);
+        actions.append(' | ');
+    }
+    var quitUrl = '{{ url_for('quit', game_id=game_id, player_id=player_id) }}';
+    var quitLink = $('<a href="' + quitUrl + '">Quit</a>')
+    actions.append(quitLink);
+};
+
+var showState = function(game_info) {
+    if (!game_info) {
+        return;
+    }
+    showActions(game_info);
+    var gDiv = $('#gameinfo');
+    var cDiv = $('#cardinfo');
+    cDiv.empty();
+    gDiv.empty();
+    $('#discard').empty();
+    $('#playerinfo').empty();
+    if ($.isEmptyObject(game_info)) {
+        return;
+    }
+    gDiv.append('Name: <span>' + game_info.name + '</span><br>');
+    gDiv.append('Active: <span>' + game_info.active + '</span><br>');
+    gDiv.append('Created At: <span>' + game_info.created_at + '</span><br>');
+    gDiv.append('Ended At: <span>' + game_info.ended_at + '</span><br>');
+    gDiv.append('Min Players: <span>' + game_info.min_players + '</span><br>');
+    gDiv.append('Max Players: <span>' + game_info.max_players + '</span><br>');
+    gDiv.append('Points To Win: <span>' + game_info.points_to_win + '</span><br>');
+    gDiv.append('Reverse: <span>' + game_info.reverse + '</span><br>');
+    gDiv.append('Started At: <span>' + game_info.started_at + '</span>');
+    cDiv.append('Cards In Draw Pile: <span>' +
+        game_info.draw_pile_size + '</span><br>');
+    cDiv.append('Cards In Discard Pile: <span>' +
+        game_info.discard_pile_size + '</span><br>');
+    last_discard = null;
+    if (!$.isEmptyObject(game_info.last_discard)) {
+        var card_color = game_info.last_discard.color;
+        var card_value = game_info.last_discard.value;
+        last_discard = card_color + ' ' + card_value;
+        $('#discard').append(makeCard(game_info.last_discard));
+    }
+    cDiv.append('Last Discard: <span>' + last_discard + '</span>')
+    var num_players = game_info.players.length;
+    for (var i = 0; i < num_players; i++) {
+        showPlayer(game_info.players[i]);
+    }
+};
+
+$(function() {
+    window.GAME_ID = '{{ game_id }}';
+    window.PLAYER_ID = '{{ player_id }}';
+    window.CARD_ID = '';
+    window.SELECTED_COLOR = '';
+    getstateJSON();
+    var drawpile = makeDummyCard('DRAW');
+    drawpile.bind('click', draw);
+    $('#drawpile').append(drawpile);
+    setInterval(getstateJSON, 1000);
+});
+
+</script>
+<h1>Runo Test Client</h1>
+<div id="container">
+    <div id="controls">
+        <div id="actions">
+        </div>
+    </div>
+    <div id="game">
+        <div id="gameinfocontainer">
+            <div id="gameinfo">
+            </div><div id="cardinfo">
+            </div><div id="drawpile">
+            </div><div id="discard">
+            </div>
+        </div>
+        <div id="playerinfo">
+        </div>
+    </div>
+</div>
+{% endblock %}

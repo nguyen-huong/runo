@@ -1,33 +1,44 @@
-from flask import Flask, jsonify, render_template, request
-from runo import admin_start_game, create_new_game, get_state, join_game, \
-    leave_game, play_card, player_draw_card
+from flask import abort, Flask, jsonify, redirect, render_template, request, \
+    url_for
+from runo import admin_start_game, create_new_game, get_state, get_open_games, \
+    join_game, leave_game, play_card, player_draw_card
 
 app = Flask(__name__)
 
 
 @app.route('/')
-def index_route():
-    return render_template('index.html')
+def index():
+    open_games = get_open_games()
+    return render_template('index.html', open_games=open_games)
+
+
+@app.route('/play/<game_id>/<player_id>')
+def play(game_id, player_id):
+    game_data = get_state(game_id, player_id)
+    if not game_data:
+        abort(404);
+    return render_template('play.html', game_id=game_id, player_id=player_id)
 
 
 @app.route('/newgame')
-def new_game_route():
+def newgame():
     game_name = request.args.get('game_name')
     player_name = request.args.get('player_name')
     game_data = create_new_game(game_name, player_name)
     game_id = game_data['id']
     player_id = game_data['players'][0]['id']
-    return jsonify(game_id=game_id, player_id=player_id)
+    return redirect(url_for('play', game_id=game_id, player_id=player_id))
 
 
 @app.route('/join')
-def join_route():
+def join():
     game_id = request.args.get('game_id')
     name = request.args.get('name')
     player = join_game(game_id, name)
     if player:
-        return jsonify(player_id=player['id'])
-    return jsonify(player_id=None)
+        player_id = player['id']
+        return redirect(url_for('play', game_id=game_id, player_id=player_id))
+    return 'We apologize, but this game is no longer available.'
 
 
 @app.route('/start')
@@ -64,12 +75,10 @@ def draw_route():
     return jsonify(result=result)
 
 
-@app.route('/quit')
-def quit_route():
-    game_id = request.args.get('game_id')
-    player_id = request.args.get('player_id')
+@app.route('/quit/<game_id>/<player_id>')
+def quit(game_id, player_id):
     result = leave_game(game_id, player_id)
-    return jsonify(result=result)
+    return redirect(url_for('index'))
 
 
 if __name__ == '__main__':

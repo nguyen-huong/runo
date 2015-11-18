@@ -50,21 +50,28 @@ span {
 
 #gameinfo {
     display: inline-block;
-    width: 40%;
+    width: 38%;
 }
 
 #cardinfo {
     display: inline-block;
     vertical-align: top;
-    width: 40%;
+    width: 38%;
+}
+
+#drawpile {
+    box-sizing: border-box;
+    display: inline-block;
+    vertical-align: top;
+    width: 12%;
+    padding: 1em;
 }
 
 #discard {
     box-sizing: border-box;
     display: inline-block;
     vertical-align: top;
-    text-align: right;
-    width: 20%;
+    width: 12%;
     padding: 1em;
 }
 
