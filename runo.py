@@ -485,10 +485,16 @@ def get_state(game_id, player_id):
     last_discard = game_data['stack'][-1] if game_data['stack'] else {}
     game_data['last_discard'] = last_discard
     game_data['discard_pile_size'] = len(game_data['stack'])
-    game_data.pop('stack')
     for p in players:
         p['hand_size'] = len(p['hand'])
-        if p['id'] != player_id:
+        if p['id'] == player_id and p['active']:
+            p['draw_required'] = True
+            for card in p['hand']:
+                if can_play_card(game_data, card):
+                    p['draw_required'] = False
+                    break
+        elif p['id'] != player_id:
             p['id'] = None
             p.pop('hand')
+    game_data.pop('stack')
     return game_data

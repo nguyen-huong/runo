@@ -244,6 +244,48 @@ class GameTestCase(unittest.TestCase):
             self.assertIn(card, game_data['players'][0]['hand'])
         self.assertNotIn('hand', result['players'][1])
 
+    def test_get_state_returns_draw_required_for_active_player(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        add_player_to_game(game_data, 'PlayerTwo')
+        start_game(game_data)
+        save_state(game_data)
+        game_id = game_data['id']
+        player_id = game_data['players'][0]['id']
+        game_data = get_state(game_id, player_id)
+        # Ensure that the "draw_required" key exists in PlayerOne's dict
+        self.assertIn('draw_required', game_data['players'][0])
+
+    def test_get_state_sets_draw_required_for_active_player_if_needed(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        add_player_to_game(game_data, 'PlayerTwo')
+        start_game(game_data)
+        # Initialize PlayerOne's hand to have only one card
+        game_data['players'][0]['hand'] = [create_card('4', 'RED')]
+        # Initialize top of discard pile to a not matching card
+        game_data['stack'][-1] = create_card('5', 'BLUE')
+        save_state(game_data)
+        game_id = game_data['id']
+        player_id = game_data['players'][0]['id']
+        game_data = get_state(game_id, player_id)
+        # Ensure that the "draw_required" key exists in PlayerOne's dict
+        self.assertIn('draw_required', game_data['players'][0])
+        # Ensure that "draw_required" is set to true
+        self.assertTrue(game_data['players'][0]['draw_required'])
+
+    def test_get_state_no_draw_required_for_inactive_players(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        player_two = add_player_to_game(game_data, 'PlayerTwo')
+        player_three = add_player_to_game(game_data, 'PlayerThree')
+        start_game(game_data)
+        save_state(game_data)
+        game_id = game_data['id']
+        # Ensure that "draw_required" key does not exist in PlayerTwo's dict
+        game_data = get_state(game_id, player_two['id'])
+        self.assertNotIn('draw_required', game_data['players'][1])
+        # Ensure that "draw_required" key does not exist in PlayerThree's dict
+        game_data = get_state(game_id, player_three['id'])
+        self.assertNotIn('draw_required', game_data['players'][2])
+
     def test_get_active_player_returns_none_before_game_starts(self):
         game_data = create_new_game('MyGame', 'PlayerOne')
         result = get_active_player(game_data)
