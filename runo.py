@@ -1,4 +1,5 @@
 import json
+import os
 import random
 import string
 from collections import deque
@@ -48,6 +49,15 @@ def save_state(game_data):
     except IOError:
         return False
     return True
+
+
+def get_open_games():
+    games = []
+    for game_id in os.listdir(GAME_FILE_PATH):
+        game_data = load_state(game_id)
+        if not game_data['active'] and not game_data['ended_at']:
+            games.append(game_data)
+    return games
 
 
 def generate_id(length):

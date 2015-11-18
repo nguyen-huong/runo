@@ -59,6 +59,72 @@ class GameTestCase(unittest.TestCase):
         game_data = load_state(game_data['id'])
         self.assertNotEqual(game_data, {})
 
+    def test_get_open_games_one_game_available(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        save_state(game_data)
+        open_games = get_open_games()
+        # Ensure that there is only one open game
+        self.assertEqual(len(open_games), 1)
+        # Ensure that MyGame is the one that's in the list
+        self.assertIn(game_data, open_games)
+
+    def test_get_open_games_two_games_available(self):
+        game_one = create_new_game('GameOne', 'PlayerOne')
+        save_state(game_one)
+        game_two = create_new_game('GameTwo', 'PlayerOne')
+        save_state(game_two)
+        open_games = get_open_games()
+        # Ensure that there are two open games
+        self.assertEqual(len(open_games), 2)
+        # Ensure that the previously-created games are in the list
+        self.assertIn(game_one, open_games)
+        self.assertIn(game_two, open_games)
+
+    def test_get_open_games_two_games_but_one_already_started(self):
+        game_one = create_new_game('GameOne', 'PlayerOne')
+        save_state(game_one)
+        game_two = create_new_game('GameTwo', 'PlayerOne')
+        add_player_to_game(game_two, 'PlayerTwo')
+        # Start GameTwo
+        start_game(game_two)
+        save_state(game_two)
+        open_games = get_open_games()
+        # Ensure that there is only one open game
+        self.assertEqual(len(open_games), 1)
+        # Ensure that GameOne is the one that's in the list
+        self.assertIn(game_one, open_games)
+
+    def test_get_open_games_two_games_but_one_already_ended(self):
+        game_one = create_new_game('GameOne', 'PlayerOne')
+        save_state(game_one)
+        game_two = create_new_game('GameTwo', 'PlayerOne')
+        # End GameTwo
+        game_two['ended_at'] = 'sometime'
+        save_state(game_two)
+        open_games = get_open_games()
+        # Ensure that there is only one open game
+        self.assertEqual(len(open_games), 1)
+        # Ensure that GameOne is the one that's in the list
+        self.assertIn(game_one, open_games)
+
+    def test_get_open_games_two_games_but_both_already_ended(self):
+        game_one = create_new_game('GameOne', 'PlayerOne')
+        # End GameOne
+        game_one['ended_at'] = 'sometime'
+        save_state(game_one)
+        game_two = create_new_game('GameTwo', 'PlayerOne')
+        # End GameTwo
+        game_two['ended_at'] = 'sometime'
+        save_state(game_two)
+        open_games = get_open_games()
+        # Ensure that there are no games
+        self.assertEqual(open_games, [])
+
+    def test_get_open_games_when_there_are_no_games(self):
+        open_games = get_open_games()
+        # Ensure that there are no games
+        self.assertEqual(open_games, [])
+
     def test_new_game_deck_has_108_cards(self):
         game_data = create_new_game('MyGame', 'PlayerOne')
         self.assertEqual(len(game_data['deck']), 108)
