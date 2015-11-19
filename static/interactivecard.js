@@ -5,9 +5,9 @@ var InteractiveCard = function(value, color, handler, onSuccess, onFailure) {
         if (handler && that.isActive()) {
             var result = handler.call(that, e);
             if (result && onSuccess) {
-                onSuccess.call(that);
+                onSuccess();
             } else if (!result && onFailure) {
-                onFailure.call(that);
+                onFailure();
             }
         }
         return false;

@@ -9,7 +9,10 @@ var Tray = function(lastDiscardJSON, playerIsActive) {
     this.element = $('<div id="tray" class=""></div>');
 
     if (lastDiscardJSON) {
-        lastDiscard = new Card(lastDiscardJSON.value, lastDiscardJSON.color);
+        lastDiscard = new DiscardCard(
+            lastDiscardJSON.value, lastDiscardJSON.color, lastDiscardJSON.id
+        );
+        lastDiscard.activate();
         this.element.append(lastDiscard.element)
     }
 

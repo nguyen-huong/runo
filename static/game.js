@@ -46,7 +46,7 @@ var game = function() {
         $('#game').append(hand.element);
     };
 
-    getStateJSON(update);
+    json.getState(update);
     // setInterval(function() {
     //     getStateJSON(update);
     // }, 5000);
