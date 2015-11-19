@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>RUNO | the UNO clone</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script>
+        var $SCRIPT_ROOT = '{{ request.script_root }}';
+        var QUIT_URL = '{{ url_for('quit', game_id=game_id, player_id=player_id) }}';
+        var GAME_ID = '{{ game_id }}';
+        var PLAYER_ID = '{{ player_id }}';
+    </script>
+</head>
+<body>
+    <div id="game">
+        <div id="topbar">
+            <div id="title">RUNO</div>
+            <div id="controls"></div>
+        </div>
+        <div id="flash"></div>
+        <table id="scoreboard" class="table table-condensed">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Points</th>
+                    <th>Rounds</th>
+                    <th>Cards</th>
+                </tr>
+            </thead>
+            <tbody id="players">
+            </tbody>
+        </table>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" integrity="sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='json.js') }}"></script>
+    <script src="{{ url_for('static', filename='card.js') }}"></script>
+    <script src="{{ url_for('static', filename='interactivecard.js') }}"></script>
+    <script src="{{ url_for('static', filename='drawcard.js') }}"></script>
+    <script src="{{ url_for('static', filename='playercard.js') }}"></script>
+    <script src="{{ url_for('static', filename='tray.js') }}"></script>
+    <script src="{{ url_for('static', filename='hand.js') }}"></script>
+    <script src="{{ url_for('static', filename='game.js') }}"></script>
+
+    <script>
+    var showPlayer = function(name, points, rounds, cards, isActive) {
+        var player;
+        if (isActive) {
+            player = '<tr class="success">';
+        } else {
+            player = '<tr>';
+        }
+        player += '<td>' + name + '</td>';
+        player += '<td>' + points + '</td>';
+        player += '<td>' + rounds + '</td>';
+        player += '<td>' + cards + '</td>';
+        player += '</tr>';
+        $('#players').append(player);
+    };
+
+    $(function() {
+        showPlayer('Richard', '123', '3', '13', true);
+        showPlayer('Karen', '198', '4', '5', false);
+        game();
+    });
+    </script>
+</body>
+</html>

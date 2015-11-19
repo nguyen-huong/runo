@@ -1,109 +1,323 @@
 body {
-    font-family: monospace;
+    font: 14px sans-serif;
 }
 
-input {
-    font-family: monospace;
-    margin: 0 0 0.5em;
-}
-
-span {
-    font-weight: bold;
-}
-
-#container {
-    max-width: 900px;
-}
-
-#controls {
+table {
     width: 100%;
-    border: 1px solid lightgray;
-    margin: 1em 0;
+    table-layout: fixed;
 }
 
-#actions {
-    width: 95%;
-    font-size: 1.2em;
-    border-bottom: 1px solid lightgray;
-    padding-bottom: 1em;
-    margin: 1em auto;
-}
-
-#variables {
-    width: 95%;
-    font-size: 0.8em;
-    margin: 1em auto;
+caption {
+    padding: 0;
+    margin: 0;
 }
 
 #game {
-    width: 100%;
-    font-size: 0.8em;
-    border: 1px solid lightgray;
-    margin: 1em 0;
-}
+    /* static */
 
-#gameinfocontainer {
-    width: 95%;
-    background-color: #e8e8e8;
-    margin: 1em auto;
-}
-
-#gameinfo {
-    display: inline-block;
-    width: 38%;
-}
-
-#cardinfo {
-    display: inline-block;
-    vertical-align: top;
-    width: 38%;
-}
-
-#drawpile {
-    box-sizing: border-box;
-    display: inline-block;
-    vertical-align: top;
-    width: 12%;
+    /* sizing */
     padding: 1em;
+    margin: 0 auto;
+
+    /* experimental */
+    background-color: gainsboro;
 }
 
-#discard {
-    box-sizing: border-box;
+#topbar {
+    /* static */
+
+    /* sizing */
+    margin-bottom: 1em;
+    padding: 1em;
+
+    /* experimental */
+    background-color: #c1c1c1;
+    border-radius: 1em;
+}
+
+#title {
+    /* static */
     display: inline-block;
-    vertical-align: top;
-    width: 12%;
-    padding: 1em;
+    font-weight: bold;
+
+    /* sizing */
+    width: 49%;
+
+    /* experimental */
+    /*border: 1px solid pink;*/
 }
 
-#playerinfo {
-    width: 95%;
-    margin: 1em auto;
+#controls {
+    /* static */
+    display: inline-block;
+    text-align: right;
+
+    /* sizing */
+    width: 49%;
+
+    /* experimental */
+    /*border: 1px solid pink;*/
 }
 
-.player {
-    background-color: #bdbdbd;
-    margin: 1em 0;
+.game-control {
+    /* static */
+    diplay: inline-block;
+
+    /* sizing */
+    padding: 0 1em;
+
+    /* experimental */
+    border: 1px solid gray;
 }
 
-.hand {
-    box-sizing: border-box;
-    width: 100%;
-    background-color: lightgray;
-    padding: 1em;
+#flash {
+    text-align: center;
+    /*font-size: 8px;*/
+    padding: 0;
+    margin: 0;
+}
+
+#tray {
+    /* static */
+    text-align: center;
+
+    /* sizing */
+    margin-bottom: 1em;
+
+    /* experimental */
+    padding-top: 1em;
+    background-color: #c1c1c1;
+    border-radius: 1em;
+    /*border: 1px solid pink;*/
+}
+
+#scoreboard {
+    /* static */
+    box-shadow: 5px 5px 5px #888888;
+
+    /* sizing */
+    font-size: 8px;
+    margin: 2em auto;
+
+    /* experimental */
+    background-color: white;
+    width: 96%;
+}
+
+#hand {
+    /* static */
+
+    /* sizing */
+
+    /* experimental */
 }
 
 .card {
-    box-sizing: border-box;
-    vertical-align: middle;
+    /* static */
     display: inline-block;
-    width: 80px;
-    height: 110px;
+    vertical-align: top;
+    opacity: 0.2;
+    transition: opacity 0.25s ease-in-out;
+
+    /* sizing */
+    box-sizing: border-box;
+    width: 25%;
+    margin-bottom: 1em;
+
+    /* experimental */
+    /*border: 1px solid white;*/
+    /*margin-bottom: 1em;*/
+}
+
+.card-active {
+    opacity: 1;
+}
+
+.card-content {
+    /* static */
+    display: block;
+    color: black !important;
+    outline: 0 !important;
+    text-decoration: none !important;
     text-align: center;
-    font-size: 1.1em;
-    font-weight: bold;
+    box-shadow: 5px 5px 5px #888888;
+    cursor: default;
+
+    /* sizing */
+    box-sizing: border-box;
+    width: 55px;
+    height: 70px;
+    font-size: 10px;
+    margin: 0.2em auto;
+
+    /* experimental */
+    background-color: black;
+    border-radius: 15%;
+}
+
+.card-content-clickable {
+    cursor: pointer;
+}
+
+.card-content-value{
+    /* static */
+    display: inline-block;
+    border-radius: 10%;
     background-color: white;
-    border: 3px solid black;
-    border-radius: 10px;
-    padding: 20px 10px;
-    margin: 0.2em;
+
+    /* sizing */
+    width: 75%;
+    height: 80%;
+    margin-top: 12%;
+}
+
+.card-content-value-icon {
+    /* static */
+    display: block;
+
+    /* sizing */
+    font-size: 1.5em;
+    margin-top: 0.1em;
+
+    /* experimental */
+    /*background-color: yellow;*/
+}
+
+.card-content-value-number {
+    /* static */
+    display: block;
+    font-weight: bold;
+
+    /* sizing */
+    font-size: 4em;
+}
+
+.card-content-value-word {
+    /* static */
+    display: block;
+    font-weight: bold;
+
+    /* sizing */
+    font-size: 0.7em;
+    margin-top: 5px;
+}
+
+.card-content-value-wild {
+    /* static */
+    display: block;
+    font-weight: bold;
+    color: white;
+    background-color: black;
+
+    /* sizing */
+    font-size: 1.2em;
+    margin-top: 5px;
+}
+
+.card-content-value-dummy {
+    /* static */
+    display: block;
+    font-weight: bold;
+
+    /* sizing */
+    font-size: 1.2em;
+    margin-top: 10px;
+}
+
+.card-blue {
+    color: blue !important;
+    background-color: blue;
+}
+
+.card-green {
+    color: green !important;
+    background-color: green;
+}
+
+.card-red {
+    color: red !important;
+    background-color: red;
+}
+
+.card-yellow {
+    color: #d6d604 !important;
+    background-color: #d6d604;
+}
+
+@media (min-width: 400px) {
+    #scoreboard {
+        /* sizing */
+        font-size: 10px;
+    }
+
+    .card {
+        /* sizing */
+        width: 20%;
+    }
+}
+
+@media (min-width: 500px) {
+    #scoreboard {
+        /* sizing */
+        font-size: 12px;
+    }
+
+    .card-content {
+        /* sizing */
+        width: 75px;
+        height: 95px;
+        font-size: 14px;
+    }
+}
+
+@media (min-width: 600px) {
+    #scoreboard {
+        /* sizing */
+        font-size: 14px;
+    }
+
+    .card-content {
+        /* sizing */
+        width: 95px;
+        height: 121px;
+        font-size: 16px;
+    }
+}
+
+@media (min-width: 768px) {
+    #game {
+        /* sizing */
+        width: 90%;
+    }
+
+    .card {
+        /* sizing */
+        /*margin-bottom: 1em;*/
+        width: 16.666%;
+    }
+
+    .card-content {
+        /* sizing */
+        width: 95px;
+        height: 121px;
+    }
+}
+
+@media (min-width: 960px) {
+    #game {
+        /* sizing */
+        width: 864px;
+    }
+
+    #scoreboard {
+        /* sizing */
+        font-size: 18px;
+    }
+
+    .card-content {
+        /* sizing */
+        width: 120px;
+        height: 153px;
+        font-size: 20px;
+    }
 }

@@ -17,7 +17,7 @@ def play(game_id, player_id):
     game_data = get_state(game_id, player_id)
     if not game_data:
         abort(404);
-    return render_template('play.html', game_id=game_id, player_id=player_id)
+    return render_template('testplay.html', game_id=game_id, player_id=player_id)
 
 
 @app.route('/newgame')
