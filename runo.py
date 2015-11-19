@@ -9,6 +9,7 @@ from itertools import cycle
 
 GAME_ID_LENGTH = 48
 PLAYER_ID_LENGTH = 48
+PLAYER_UX_ID_LENGTH = 8
 CARD_ID_LENGTH = 6
 GAME_FILE_PATH = 'games'
 SPECIAL_CARDS = ['WILD', 'WILD_DRAW_FOUR']
@@ -113,8 +114,10 @@ def add_player_to_game(game_data, player_name, admin=False):
     if game_data['max_players'] == len(game_data['players']):
         return None
     player_id = generate_id(PLAYER_ID_LENGTH)
+    player_ux_id = generate_id(PLAYER_UX_ID_LENGTH)
     player = {
         'id': player_id,
+        'ux_id': player_ux_id,
         'name': player_name,
         'admin': admin,
         'active': False,

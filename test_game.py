@@ -177,6 +177,14 @@ class GameTestCase(unittest.TestCase):
         self.assertIsNone(player3)
         self.assertEqual(len(game_data['players']), 2)
 
+    def test_add_player_to_game_generates_ux_id(self):
+        game_data = create_new_game('MyGame', 'PlayerOne')
+        add_player_to_game(game_data, 'PlayerTwo')
+        save_state(game_data)
+        game_data = load_state(game_data['id'])
+        for player in game_data['players']:
+            self.assertEqual(len(player['ux_id']), PLAYER_UX_ID_LENGTH)
+
     def test_each_player_has_seven_cards_after_game_starts(self):
         game_data = create_new_game('MyGame', 'PlayerOne')
         add_player_to_game(game_data, 'PlayerTwo')
