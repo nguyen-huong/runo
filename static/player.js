@@ -2,7 +2,6 @@ var Player = function(playerJSON) {
     // Initialize player data
     this.id = playerJSON.id;
     this.uxId = playerJSON.ux_id;
-    this.name = playerJSON.name;
     this.points = playerJSON.points;
     this.roundsWon = playerJSON.rounds_won;
     this.numCards = playerJSON.hand_size;
@@ -10,6 +9,11 @@ var Player = function(playerJSON) {
     this.isAdmin = playerJSON.admin;
     this.isGameWinner = playerJSON.game_winner;
     this.isDrawRequired = playerJSON.draw_required;
+    if (this.id) {
+        this.name = 'Me';
+    } else {
+        this.name = playerJSON.name;
+    }
 
     // Create the player element
     this.element = $('<tr class="player"></tr>');

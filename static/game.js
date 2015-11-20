@@ -32,18 +32,16 @@ var runGame = function() {
     // Create the tray
     var tray = new Tray(function() {
         json.getState(update);
-        console.log('DrawCard success!');
     }, function() {
-        console.log('DrawCard failure!');
+        alert('Draw failed... are you sure you don\'t have a playable card?');
     });
     element.append(tray.element);
 
     // Create the player's hand
     var hand = new Hand(function() {
         json.getState(update);
-        console.log('PlayerCard success!');
     }, function() {
-        console.log('PlayerCard failure!');
+        alert('You can\'t play that card!');
     });
     element.append(hand.element);
 

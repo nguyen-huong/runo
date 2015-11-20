@@ -248,6 +248,17 @@ table {
     background-color: #d6d604;
 }
 
+#description {
+    text-align: center;
+    font-size: 0.6em;
+    color: #a1a1a1;
+    margin: 1em;
+}
+
+#description > a {
+    color: #a1a1a1 !important;
+}
+
 @media (min-width: 400px) {
     #scoreboard {
         /* sizing */
@@ -290,13 +301,15 @@ table {
 
 @media (min-width: 768px) {
     #game {
+        /* static */
+        border-radius: 0 0 2em 2em;
+
         /* sizing */
         width: 90%;
     }
 
     .card {
         /* sizing */
-        /*margin-bottom: 1em;*/
         width: 16.666%;
     }
 
@@ -304,6 +317,10 @@ table {
         /* sizing */
         width: 95px;
         height: 121px;
+    }
+
+    #description {
+        font-size: 0.8em;
     }
 }
 
