@@ -1,6 +1,10 @@
-var Hand = function() {
+var Hand = function(onPlaySuccess, onPlayFailure) {
     // Create the hand element
     this.element = $('<div id="hand" class=""></div>');
+
+    // Store the handlers for the PlayerCard objects
+    this.onPlaySuccess = onPlaySuccess;
+    this.onPlayFailure = onPlayFailure;
 
     // Create the array to hold PlayerCard objects
     this.cards = [];
@@ -9,7 +13,7 @@ var Hand = function() {
 
 Hand.prototype.indexOf = function(cardId) {
     for (var i = 0; i < this.cards.length; i++) {
-        if (uxId == this.cards[i].id) {
+        if (cardId == this.cards[i].id) {
             return i;
         }
     }
@@ -56,28 +60,35 @@ Hand.prototype.addCards = function(handJSON) {
             }
         }
         if (!cardExists) {
-            newCard = new PlayerCard(handJSON[i], function() {
-                console.log('PlayerCard success!');
-            }, function() {
-                console.log('PlayerCard failure!');
-            });
+            newCard = new PlayerCard(handJSON[i], this.onPlaySuccess, this.onPlayFailure);
             this.cards.push(newCard);
+            if (this.active) {
+                setTimeout(function() {
+                    newCard.activate();
+                }, 25);
+            }
             this.element.append(newCard.element);
         }
     }
 };
 
 Hand.prototype.activate = function() {
-    for (var i = 0; i < this.cards.length; i++) {
-        this.cards[i].activate();
-    }
+    var cards = this.cards;
+    setTimeout(function() {
+        for (var i = 0; i < cards.length; i++) {
+            cards[i].activate();
+        }
+    }, 750);
     this.active = true;
 };
 
 Hand.prototype.deactivate = function() {
-    for (var i = 0; i < this.cards.length; i++) {
-        this.cards[i].deactivate();
-    }
+    var cards = this.cards;
+    setTimeout(function() {
+        for (var i = 0; i < cards.length; i++) {
+            cards[i].deactivate();
+        }
+    }, 500);
     this.active = false;
 };
 
@@ -99,47 +110,3 @@ Hand.prototype.update = function(game_data) {
         this.deactivate();
     }
 };
-
-// Hand.prototype.update = function(game_data) {
-//     var active = false;
-//     var cards = [];
-//     var value;
-//     var color;
-//     var id;
-//     var card;
-
-//     for (var i = 0; i < handJSON.length; i++) {
-//         value = handJSON[i].value;
-//         color = handJSON[i].color;
-//         id = handJSON[i].id;
-//         card = new PlayerCard(value, color, id, function() {
-//             console.log('PlayerCard success!');
-//         }, function() {
-//             console.log('PlayerCard failure!');
-//         });
-//         cards.push(card);
-//         this.element.append(card.element)
-//     }
-
-//     this.isActive = function() {
-//         return active;
-//     };
-
-//     this.activate = function() {
-//         for (var i = 0; i < cards.length; i++) {
-//             cards[i].activate();
-//         }
-//         active = true;
-//     };
-
-//     this.deactivate = function() {
-//         for (var i = 0; i < cards.length; i++) {
-//             cards[i].deactivate();
-//         }
-//         active = false;
-//     };
-
-//     if (playerIsActive) {
-//         this.activate();
-//     }
-// };

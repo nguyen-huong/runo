@@ -30,11 +30,21 @@ var runGame = function() {
     element.append(scoreboard.element);
 
     // Create the tray
-    var tray = new Tray();
+    var tray = new Tray(function() {
+        json.getState(update);
+        console.log('DrawCard success!');
+    }, function() {
+        console.log('DrawCard failure!');
+    });
     element.append(tray.element);
 
     // Create the player's hand
-    var hand = new Hand();
+    var hand = new Hand(function() {
+        json.getState(update);
+        console.log('PlayerCard success!');
+    }, function() {
+        console.log('PlayerCard failure!');
+    });
     element.append(hand.element);
 
     // Display the game

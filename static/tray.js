@@ -1,10 +1,6 @@
-var Tray = function() {
+var Tray = function(onDrawSuccess, onDrawFailure) {
     // Create the draw card
-    this.drawCard = new DrawCard(function() {
-        console.log('DrawCard success!');
-    }, function() {
-        console.log('DrawCard failure!');
-    });
+    this.drawCard = new DrawCard(onDrawSuccess, onDrawFailure);
 
     // Declare the last discarded card
     this.lastDiscard = null;
@@ -21,7 +17,19 @@ Tray.prototype.update = function(game_data) {
             this.element.prepend(this.lastDiscard.element);
             this.lastDiscard.activate();
         } else if (game_data.last_discard.id !== this.lastDiscard.id) {
-            alert('discard changed!');
+            var oldDiscard = this.lastDiscard;
+            this.lastDiscard = new DiscardCard(game_data.last_discard);
+            this.element.prepend(this.lastDiscard.element);
+            var newDiscard = this.lastDiscard;
+            setTimeout(function() {
+                oldDiscard.deactivate();
+            }, 150);
+            setTimeout(function() {
+                oldDiscard.element.remove();
+            }, 750);
+            setTimeout(function() {
+                newDiscard.activate();
+            }, 1000);
         }
     }
 
@@ -35,6 +43,10 @@ Tray.prototype.update = function(game_data) {
 
     if (isCurrentPlayerActive) {
         this.drawCard.activate();
+        // var drawCard = this.drawCard;
+        // setTimeout(function() {
+        //     drawCard.activate();
+        // }, 1250);
     } else {
         this.drawCard.deactivate();
     }

@@ -1,14 +1,9 @@
-var InteractiveCard = function(value, color, handler, onSuccess, onFailure) {
+var InteractiveCard = function(value, color, handler) {
     Card.call(this, value, color);
     var that = this;
     this.contentElement.on('click', function(e) {
         if (handler && that.isActive()) {
-            var result = handler.call(that, e);
-            if (result && onSuccess) {
-                onSuccess();
-            } else if (!result && onFailure) {
-                onFailure();
-            }
+            handler.call(that, e);
         }
         return false;
     });

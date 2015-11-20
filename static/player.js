@@ -13,10 +13,15 @@ var Player = function(playerJSON) {
 
     // Create the player element
     this.element = $('<tr class="player"></tr>');
-    this.element.append('<td>' + this.name + '</td>');
-    this.element.append('<td>' + this.points + '</td>');
-    this.element.append('<td>' + this.roundsWon + '</td>');
-    this.element.append('<td>' + this.numCards + '</td>');
+    this.nameElement = $('<td></td>');
+    this.nameElement.text(this.name);
+    this.pointsElement = $('<td></td>');
+    this.roundsWonElement = $('<td></td>');
+    this.numCardsElement = $('<td></td>');
+    this.element.append(this.nameElement);
+    this.element.append(this.pointsElement);
+    this.element.append(this.roundsWonElement);
+    this.element.append(this.numCardsElement);
 
     // Highlight the active player
     if (this.isActive) {
@@ -25,17 +30,26 @@ var Player = function(playerJSON) {
 };
 
 Player.prototype.activate = function() {
-    this.element.addClass('player-active');
+    var element = this.element;
+    setTimeout(function() {
+        element.addClass('player-active');
+    }, 1500);
 };
 
 Player.prototype.deactivate = function() {
-    this.element.removeClass('player-active');
+    var element = this.element;
+    setTimeout(function() {
+        element.removeClass('player-active');
+    }, 250);
 };
 
 Player.prototype.update = function(playerJSON, game_data) {
     this.points = playerJSON.points;
+    this.pointsElement.text(this.points)
     this.roundsWon = playerJSON.rounds_won;
+    this.roundsWonElement.text(this.roundsWon);
     this.numCards = playerJSON.hand_size;
+    this.numCardsElement.text(this.numCards);
     this.isGameWinner = playerJSON.game_winner;
     this.isDrawRequired = playerJSON.draw_required;
 
