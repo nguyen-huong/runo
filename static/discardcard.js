@@ -1,4 +1,7 @@
-var DiscardCard = function(value, color, id) {
+var DiscardCard = function(cardJSON) {
+    var value = cardJSON.value;
+    var color = cardJSON.color;
+    var id = cardJSON.id;
     Card.call(this, value, color);
     this.id = id;
 };

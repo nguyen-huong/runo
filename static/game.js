@@ -1,53 +1,49 @@
-var game = function() {
+var runGame = function() {
     var update = function(game_data) {
-        var playerIsActive = true;
-        var playerIsAdmin = true;
-        var gameStarted = false;
-        var gameEnded = false;
-
-        // Controls
-        var controlsElement = $('#controls');
-        var startButtonElement = $('<a class="game-control" href="#">Start</a>');
-        startButtonElement.attr('id', 'start-button');
-        var quitButtonElement = $('<a class="game-control">Quit</a>');
-        quitButtonElement.attr('href', QUIT_URL);
-        quitButtonElement.attr('id', 'quit-button');
-        if (playerIsAdmin && !gameStarted && !gameEnded) {
-            controlsElement.append(startButtonElement);
+        if (game_data) {
+            topBar.update(game_data);
+            scoreboard.update(game_data);
+            tray.update(game_data);
+            hand.update(game_data);
         }
-        controlsElement.append(quitButtonElement);
-
-        // Scoreboard
-
-        // Tray
-        var lastDiscardJSON = {value: '8', color: 'BLUE'};
-        var tray = new Tray(lastDiscardJSON, playerIsActive);
-        $('#game').append(tray.element);
-
-        // Hand
-        var handJSON = [
-            {value: 'WILD', color: null, id: 'jd6j3w'},
-            {value: 'WILD_DRAW_FOUR', color: null, id: 'jd6j3w'},
-            {value: 'DRAW_TWO', color: 'RED', id: 'jd6j3w'},
-            {value: 'SKIP', color: 'RED', id: 'jd6j3w'},
-            {value: 'REVERSE', color: 'RED', id: 'jd6j3w'},
-            {value: '0', color: 'RED', id: 'jd6j3w'},
-            {value: '1', color: 'RED', id: 'jd6j3w'},
-            {value: '2', color: 'RED', id: 'jd6j3w'},
-            {value: '3', color: 'RED', id: 'jd6j3w'},
-            {value: '4', color: 'RED', id: 'jd6j3w'},
-            {value: '5', color: 'RED', id: 'jd6j3w'},
-            {value: '6', color: 'RED', id: 'jd6j3w'},
-            {value: '7', color: 'RED', id: 'jd6j3w'},
-            {value: '8', color: 'RED', id: 'jd6j3w'},
-            {value: '9', color: 'RED', id: 'jd6j3w'},
-        ];
-        var hand = new Hand(handJSON, playerIsActive);
-        $('#game').append(hand.element);
     };
 
+    // Create the game element
+    var element = $('<div id="game"></div>');
+
+    // Create top bar, with start button handler
+    var topBar = new TopBar(function() {
+        json.start(function(result) {
+            if (result) {
+                json.getState(update);
+            }
+        })
+    });
+    element.append(topBar.element);
+
+    // Create the flash
+    // var flash = new Flash();
+    // element.append(flash.element);
+
+    // Create the scoreboard
+    var scoreboard = new Scoreboard();
+    element.append(scoreboard.element);
+
+    // Create the tray
+    var tray = new Tray();
+    element.append(tray.element);
+
+    // Create the player's hand
+    var hand = new Hand();
+    element.append(hand.element);
+
+    // Display the game
+    $('body').prepend(element);
+
+
     json.getState(update);
-    // setInterval(function() {
-    //     getStateJSON(update);
-    // }, 5000);
+
+    setInterval(function() {
+        json.getState(update);
+    }, 2000);
 };

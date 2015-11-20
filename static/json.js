@@ -1,13 +1,6 @@
 var json = (function() {
     var obj = {}
 
-    obj.start = function(callback) {
-        $.getJSON($SCRIPT_ROOT + '/start', {
-            game_id: GAME_ID,
-            player_id: PLAYER_ID
-        }, callback);
-    };
-
     obj.getState = function(callback) {
         $.getJSON($SCRIPT_ROOT + '/getstate', {
             game_id: GAME_ID,
@@ -15,12 +8,19 @@ var json = (function() {
         }, callback);
     };
 
-    obj.playCard = function(callback) {
+    obj.start = function(callback) {
+        $.getJSON($SCRIPT_ROOT + '/start', {
+            game_id: GAME_ID,
+            player_id: PLAYER_ID
+        }, callback);
+    };
+
+    obj.playCard = function(cardId, selectedColor, callback) {
         $.getJSON($SCRIPT_ROOT + '/playcard', {
             game_id: GAME_ID,
             player_id: PLAYER_ID,
-            card_id: CARD_ID,
-            selected_color: SELECTED_COLOR
+            card_id: cardId,
+            selected_color: selectedColor
         }, callback);
     };
 
