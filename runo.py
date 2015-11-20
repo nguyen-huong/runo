@@ -485,7 +485,7 @@ def get_state(game_id, player_id):
         return {}
     game_data['draw_pile_size'] = len(game_data['deck'])
     game_data.pop('deck')
-    last_discard = game_data['stack'][-1] if game_data['stack'] else {}
+    last_discard = game_data['stack'][-1] if game_data['stack'] else None
     game_data['last_discard'] = last_discard
     game_data['discard_pile_size'] = len(game_data['stack'])
     for p in players:
