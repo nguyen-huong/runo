@@ -90,3 +90,7 @@ Card.prototype.activate = function() {
 Card.prototype.deactivate = function() {
     this.element.removeClass('card-active');
 };
+
+Card.prototype.remove = function() {
+    this.element.remove();
+};

@@ -8,7 +8,6 @@ var DrawCard = function(onSuccess, onFailure) {
                 onFailure();
             }
         });
-        console.log(this);
     });
 };
 DrawCard.prototype = Object.create(InteractiveCard.prototype);

@@ -4,18 +4,13 @@ var PlayerCard = function(cardJSON, onSuccess, onFailure) {
 
     InteractiveCard.call(this, value, color, function() {
         // Make JSON call to play the card
-        var selectedColor = null;
-        if (this.value == 'WILD' || this.value == 'WILD_DRAW_FOUR') {
-            selectedColor = prompt('Red, blue, green or yellow?').toUpperCase();
-        }
-        json.playCard(this.id, selectedColor, function(data) {
+        json.playCard(this.id, null, function(data) {
             if (data.result && onSuccess) {
                 onSuccess();
             } else if (!data.result && onFailure) {
                 onFailure();
             }
         });
-        console.log(this);
     });
     this.id = cardJSON.id;
 };

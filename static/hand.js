@@ -23,7 +23,7 @@ Hand.prototype.indexOf = function(cardId) {
 Hand.prototype.removeCard = function(card) {
     var index = this.indexOf(card.id);
     if (index !== -1) {
-        card.element.remove();
+        card.remove();
         this.cards.splice(index, 1);
     }
 };
@@ -60,7 +60,11 @@ Hand.prototype.addCards = function(handJSON) {
             }
         }
         if (!cardExists) {
-            newCard = new PlayerCard(handJSON[i], this.onPlaySuccess, this.onPlayFailure);
+            if (handJSON[i].value === 'WILD' || handJSON[i].value === 'WILD_DRAW_FOUR') {
+                newCard = new WildCard(this.element, handJSON[i], this.onPlaySuccess, this.onPlayFailure);
+            } else {
+                newCard = new PlayerCard(handJSON[i], this.onPlaySuccess, this.onPlayFailure);
+            }
             this.cards.push(newCard);
             if (this.active) {
                 setTimeout(function() {
