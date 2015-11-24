@@ -25,6 +25,7 @@ Hand.prototype.removeCard = function(card) {
     if (index !== -1) {
         card.remove();
         this.cards.splice(index, 1);
+        sound.pop();
     }
 };
 
@@ -49,8 +50,10 @@ Hand.prototype.removeCards = function(handJSON) {
 };
 
 Hand.prototype.addCards = function(handJSON) {
+    var that = this;
     var newCard;
     var cardExists;
+    var newCardCounter = 0;
     for (var i = 0; i < handJSON.length; i++) {
         cardExists = false;
         for (var j = 0; j < this.cards.length; j++) {
@@ -61,17 +64,23 @@ Hand.prototype.addCards = function(handJSON) {
         }
         if (!cardExists) {
             if (handJSON[i].value === 'WILD' || handJSON[i].value === 'WILD_DRAW_FOUR') {
-                newCard = new WildCard(this.element, handJSON[i], this.onPlaySuccess, this.onPlayFailure);
+                newCard = new WildCard(that.element, handJSON[i], that.onPlaySuccess, that.onPlayFailure);
             } else {
-                newCard = new PlayerCard(handJSON[i], this.onPlaySuccess, this.onPlayFailure);
+                newCard = new PlayerCard(handJSON[i], that.onPlaySuccess, that.onPlayFailure);
             }
-            this.cards.push(newCard);
-            if (this.active) {
-                setTimeout(function() {
-                    newCard.activate();
-                }, 25);
-            }
-            this.element.append(newCard.element);
+            that.cards.push(newCard);
+
+            setTimeout(function(card) {
+                that.element.append(card.element);
+                card.activate();
+                if (!that.active) {
+                    setTimeout(function() {
+                        card.deactivate();
+                    }, 500);
+                };
+                sound.swing();
+            }, newCardCounter * 350, newCard);
+            newCardCounter++;
         }
     }
 };
