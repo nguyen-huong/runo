@@ -6,7 +6,6 @@ from collections import deque
 from datetime import datetime
 from itertools import cycle
 
-
 GAME_ID_LENGTH = 48
 PLAYER_ID_LENGTH = 48
 PLAYER_UX_ID_LENGTH = 8
@@ -545,10 +544,9 @@ def leave_game(game_id, player_id):
         game_data['active'] = False
         game_data['players'][0]['active'] = False
         game_data['ended_at'] = serialize_datetime(datetime.utcnow())
-        msg = make_info_message('Game is over')
+        msg = make_info_message('The game has ended')
         flash_broadcast(game_data, msg)
-    else:
-        if new_admin:
+    if new_admin and not (game_data['started_at'] or game_data['ended_at']):
             msg = make_info_message('You are now the game administrator')
             flash_player(game_data, new_admin, msg)
     # If no players remaining, end the game now.
