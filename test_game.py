@@ -1,12 +1,16 @@
 import os
 import unittest
+from datetime import datetime, timedelta
 from runo import *
 
 TEST_GAME_FILE_PATH = 'games_test'
+TEST_MAX_GAMES_PER_DAY = 5
+
 
 class GameTestCase(unittest.TestCase):
     def setUp(self):
         set_GAME_FILE_PATH(TEST_GAME_FILE_PATH)
+        set_MAX_GAMES_PER_DAY(TEST_MAX_GAMES_PER_DAY)
 
     def tearDown(self):
         old_dir = os.getcwd()
@@ -14,6 +18,28 @@ class GameTestCase(unittest.TestCase):
         for game_file in os.listdir('.'):
             os.remove(game_file)
         os.chdir(old_dir)
+
+    def test_can_create_new_game(self):
+        print(MAX_GAMES_PER_DAY)
+        for __ in range(TEST_MAX_GAMES_PER_DAY):
+            # Ensure that the game was created successfully
+            self.assertTrue(save_state(create_new_game('MyGame', 'PlayerOne')))
+        # Ensure that the game failed to be created
+        self.assertFalse(create_new_game('MyGame', 'PlayerOne'))
+
+    def test_house_keeping(self):
+        day_ago = serialize_datetime(datetime.utcnow() - timedelta(days=1))
+        for __ in range(TEST_MAX_GAMES_PER_DAY):
+            game_data = create_new_game('MyGame', 'PlayerOne')
+            # Ensure that the game was created successfully
+            self.assertTrue(game_data)
+            # Mock the created_at datetime to be a day old
+            game_data['created_at'] = day_ago
+            # Ensure that the game was able to be saved
+            self.assertTrue(save_state(game_data))
+        # Ensure that the game was created successfully, due to
+        # successful house-keeping
+        self.assertTrue(create_new_game('MyGame', 'PlayerOne'))
 
     def test_create_new_game(self):
         game_data = create_new_game('MyGame', 'PlayerOne')

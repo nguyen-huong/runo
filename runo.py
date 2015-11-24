@@ -18,6 +18,7 @@ CARD_VALUES = [str(i) for i in range(0, 10)]
 MIN_PLAYERS = 2
 MAX_PLAYERS = 8
 POINTS_TO_WIN = 250
+MAX_GAMES_PER_DAY = 1000
 DEFAULT_GAME_NAME = 'Game'
 DEFAULT_PLAYER_NAME = 'Player'
 
@@ -27,8 +28,21 @@ def set_GAME_FILE_PATH(path):
     GAME_FILE_PATH = path
 
 
+def set_MAX_GAMES_PER_DAY(num):
+    global MAX_GAMES_PER_DAY
+    MAX_GAMES_PER_DAY = num
+
+
 def get_game_path(game_id):
     return '{}/{}'.format(GAME_FILE_PATH, game_id)
+
+
+def serialize_datetime(dt):
+    return str(dt)
+
+
+def deserialize_datetime(serialized_dt):
+    return datetime.strptime(serialized_dt, '%Y-%m-%d %H:%M:%S.%f')
 
 
 def load_state(game_id):
@@ -60,6 +74,30 @@ def get_open_games():
     return games
 
 
+def get_old_games():
+    games = []
+    for game_id in os.listdir(GAME_FILE_PATH):
+        game_data = load_state(game_id)
+        age = datetime.utcnow() - deserialize_datetime(game_data['created_at'])
+        # If game is at least a day old, add it to the list.
+        if age.days > 0:
+            games.append(game_data)
+    return games
+
+
+def do_house_keeping():
+    for game in get_old_games():
+        os.remove(get_game_path(game['id']))
+
+
+def get_number_of_games():
+    return len(os.listdir(GAME_FILE_PATH))
+
+
+def can_create_new_game():
+    return get_number_of_games() < MAX_GAMES_PER_DAY
+
+
 def generate_id(length):
     return ''.join(
         random.choice(
@@ -78,14 +116,6 @@ def generate_game_name():
 
 def generate_player_name():
     return DEFAULT_PLAYER_NAME + generate_digits(5)
-
-
-def serialize_datetime(dt):
-    return str(dt)
-
-
-def deserialize_datetime(serialized_dt):
-    return datetime.strptime(serialized_dt, '%Y-%m-%d %H:%M:%S.%f')
 
 
 def create_card(value, color=None):
@@ -379,6 +409,9 @@ def create_new_game(game_name, player_name, points_to_win=POINTS_TO_WIN,
     """ Creates a new game.
         Returns the game data dictionary.
     """
+    do_house_keeping()
+    if not can_create_new_game():
+        return {}
     game_name = game_name or generate_game_name()
     player_name = player_name or generate_player_name()
     points_to_win = points_to_win or POINTS_TO_WIN
@@ -408,8 +441,10 @@ def create_new_game(game_name, player_name, points_to_win=POINTS_TO_WIN,
     msg = make_info_message(
         'Click "Start" after all player(s) have joined')
     flash_broadcast(game_data, msg)
-    save_state(game_data)
-    return game_data
+    result = save_state(game_data)
+    if result:
+        return game_data
+    return {}
 
 
 def play_card(game_id, player_id, card_id, selected_color=None):
@@ -584,7 +619,7 @@ def admin_start_game(game_id, player_id):
     alt_msg = make_info_message('{} started the game'.format(player['name']))
     flash_player(game_data, player, msg, alt_msg)
     msg = make_info_message(
-        'The first player to {} points wins!'.format(POINTS_TO_WIN))
+        'The first player to reach {} points wins!'.format(POINTS_TO_WIN))
     flash_broadcast(game_data, msg)
     save_state(game_data)
     return True

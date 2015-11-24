@@ -1,6 +1,6 @@
 var runGame = function() {
     var update = function(game_data) {
-        if (game_data) {
+        if (!$.isEmptyObject(game_data)) {
             topBar.update(game_data);
             scoreboard.update(game_data);
             flash.update(game_data);

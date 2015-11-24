@@ -27,9 +27,11 @@ def newgame():
     game_name = request.args.get('game_name')
     player_name = request.args.get('player_name')
     game_data = create_new_game(game_name, player_name)
-    game_id = game_data['id']
-    player_id = game_data['players'][0]['id']
-    return redirect(url_for('play', game_id=game_id, player_id=player_id))
+    if game_data:
+        game_id = game_data['id']
+        player_id = game_data['players'][0]['id']
+        return redirect(url_for('play', game_id=game_id, player_id=player_id))
+    return 'Unable to create a new game at this time.'
 
 
 @app.route('/join')
@@ -40,7 +42,7 @@ def join():
     if player:
         player_id = player['id']
         return redirect(url_for('play', game_id=game_id, player_id=player_id))
-    return 'We apologize, but this game is no longer available.'
+    return 'This game is no longer accepting new players.'
 
 
 @app.route('/start')
