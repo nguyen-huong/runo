@@ -465,13 +465,17 @@ def play_card(game_id, player_id, card_id, selected_color=None):
     if not game_data['active']:
         return False
     card = [c for c in player['hand'] if c['id'] == card_id][0]
+    msg = make_danger_message('You can\'t play that card!')
     if not can_play_card(game_data, card):
+        flash_player(game_data, player, msg)
         return False
     if card['value'] == 'WILD_DRAW_FOUR':
         if player_has_matching_color_card(game_data, player):
+            flash_player(game_data, player, msg)
             return False
     if card['value'] in SPECIAL_CARDS:
         if selected_color not in CARD_COLORS:
+            flash_player(game_data, player, msg)
             return False
         card['color'] = selected_color
     player['hand'].remove(card)
@@ -513,6 +517,9 @@ def player_draw_card(game_id, player_id):
     if not game_data['active']:
         return False
     if player_has_playable_card(game_data, player):
+        msg = make_danger_message(
+            'You can\'t draw when you have a playable card!')
+        flash_player(game_data, player, msg)
         return False
     draw_card(game_data, player)
     msg = None

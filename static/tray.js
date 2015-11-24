@@ -43,10 +43,6 @@ Tray.prototype.update = function(game_data) {
 
     if (isCurrentPlayerActive) {
         this.drawCard.activate();
-        // var drawCard = this.drawCard;
-        // setTimeout(function() {
-        //     drawCard.activate();
-        // }, 1250);
     } else {
         this.drawCard.deactivate();
     }

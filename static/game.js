@@ -34,7 +34,7 @@ var runGame = function() {
     var tray = new Tray(function() {
         json.getState(update);
     }, function() {
-        alert('Draw failed... are you sure you don\'t have a playable card?');
+        json.getState(update);
     });
     element.append(tray.element);
 
@@ -42,7 +42,7 @@ var runGame = function() {
     var hand = new Hand(function() {
         json.getState(update);
     }, function() {
-        alert('You can\'t play that card!');
+        json.getState(update);
     });
     element.append(hand.element);
 
