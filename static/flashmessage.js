@@ -1,7 +1,8 @@
 var FlashMessage = function(message) {
-    this.element = $('<div id="flash-message">' + message + '</div>');
+    this.element = $('<div class="alert">' + message.data + '</div>');
+    this.element.addClass('alert-' + message.type)
     var element = this.element;
     setTimeout(function() {
         element.remove();
-    }, 5000);
+    }, 3000);
 };

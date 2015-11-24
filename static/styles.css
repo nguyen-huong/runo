@@ -55,9 +55,13 @@ table {
 
 #flash {
     text-align: center;
-    /*font-size: 8px;*/
+    font-size: 0.7em;
     padding: 0;
     margin: 0;
+}
+
+.alert {
+    border-radius: 1em;
 }
 
 .player {
@@ -289,6 +293,10 @@ table {
     #scoreboard {
         /* sizing */
         font-size: 14px;
+    }
+
+    #flash {
+        font-size: 1.2em;
     }
 
     .color-selector-active {

@@ -249,16 +249,45 @@ def activate_next_player(game_data, card_drawn=False, player_quit=False):
         last_card = game_data['stack'][-1]
         next_player = player_iter.next()
         if num_players == 2 and last_card['value'] == 'REVERSE':
+            msg_data = '{} just skipped you via REVERSE!'.format(
+                    active_player['name'])
+            msg = make_warning_message(msg_data)
+            flash_player(game_data, next_player, msg)
             next_player = player_iter.next()
         elif last_card['value'] == 'SKIP':
+            msg_data = '{} just skipped you!'.format(
+                    active_player['name'])
+            msg = make_warning_message(msg_data)
+            flash_player(game_data, next_player, msg)
+            if num_players != 2:
+                msg_data = '{} just skipped {}!'.format(
+                        active_player['name'], next_player['name'])
+                msg = make_info_message(msg_data)
+                flash_exclude(game_data, [active_player, next_player], msg)
             next_player = player_iter.next()
         # If top of stack is draw_four or draw_two, draw cards on behalf
         # of the next player, then activate the player after them.
         elif last_card['value'] == 'DRAW_TWO':
             draw_two(game_data, next_player)
+            msg_data = '{} made you draw two cards!'.format(
+                    active_player['name'])
+            msg = make_warning_message(msg_data)
+            flash_player(game_data, next_player, msg)
+            msg_data = '{} made {} draw two cards!'.format(
+                    active_player['name'], next_player['name'])
+            msg = make_info_message(msg_data)
+            flash_exclude(game_data, [active_player, next_player], msg)
             next_player = player_iter.next()
         elif last_card['value'] == 'WILD_DRAW_FOUR':
             draw_four(game_data, next_player)
+            msg_data = '{} made you draw four cards!'.format(
+                    active_player['name'])
+            msg = make_warning_message(msg_data)
+            flash_player(game_data, next_player, msg)
+            msg_data = '{} made {} draw four cards!'.format(
+                    active_player['name'], next_player['name'])
+            msg = make_info_message(msg_data)
+            flash_exclude(game_data, [active_player, next_player], msg)
             next_player = player_iter.next()
     # If the last play was just drawing a card, the only logic necessary to
     # run here is advancing to the next player.
@@ -295,6 +324,9 @@ def set_round_winner(game_data, player):
         reclaim_cards(game_data)
         deal_cards(game_data)
         activate_next_player(game_data)
+        msg = make_success_message('You won the round!')
+        alt_msg = make_info_message('{} won the round!'.format(player['name']))
+        flash_player(game_data, player, msg, alt_msg)
 
 
 def set_game_winner(game_data, player):
@@ -302,6 +334,25 @@ def set_game_winner(game_data, player):
     player['active'] = False
     game_data['ended_at'] = serialize_datetime(datetime.utcnow())
     player['game_winner'] = True
+    msg = make_success_message('You won the game!')
+    alt_msg = make_info_message('{} won the game!'.format(player['name']))
+    flash_player(game_data, player, msg, alt_msg)
+
+
+def make_success_message(message):
+    return {'data': message, 'type': 'success'}
+
+
+def make_info_message(message):
+    return {'data': message, 'type': 'info'}
+
+
+def make_warning_message(message):
+    return {'data': message, 'type': 'warning'}
+
+
+def make_danger_message(message):
+    return {'data': message, 'type': 'danger'}
 
 
 def flash_broadcast(game_data, message):
@@ -310,12 +361,18 @@ def flash_broadcast(game_data, message):
     save_state(game_data)
 
 
-def flash_player(game_data, player, message, alt_message=None):
-    player['messages'].append(message)
+def flash_player(game_data, player, message=None, alt_message=None):
+    if message:
+        player['messages'].append(message)
     if alt_message:
         for p in [p for p in game_data['players'] if p != player]:
             p['messages'].append(alt_message)
     save_state(game_data)
+
+
+def flash_exclude(game_data, players, message):
+    for p in [p for p in game_data['players'] if p not in players]:
+        p['messages'].append(message)
 
 
 def create_new_game(game_name, player_name, points_to_win=POINTS_TO_WIN,
@@ -349,7 +406,9 @@ def create_new_game(game_name, player_name, points_to_win=POINTS_TO_WIN,
         'points_to_win': points_to_win
     }
     add_player_to_game(game_data, player_name, True)
-    flash_broadcast(game_data, 'Waiting for other player(s) to join')
+    msg = make_info_message(
+        'Click "Start" after all player(s) have joined')
+    flash_broadcast(game_data, msg)
     save_state(game_data)
     return game_data
 
@@ -382,9 +441,20 @@ def play_card(game_id, player_id, card_id, selected_color=None):
             return False
         card['color'] = selected_color
     player['hand'].remove(card)
+    if len(player['hand']) == 1:
+        msg = make_info_message('Only one card to go!')
+        alt_msg = make_warning_message(
+            '{} only has one card left!'.format(player['name']))
+        flash_player(game_data, player, msg, alt_msg)
     game_data['stack'].append(card)
     if card['value'] == 'REVERSE':
         game_data['reverse'] = not game_data['reverse']
+        if len(game_data['players']) != 2:
+            if game_data['reverse']:
+                msg = make_info_message('Game order has been reversed')
+            else:
+                msg = make_info_message('Game order is back to normal')
+            flash_broadcast(game_data, msg)
     if not player['hand']:
         set_round_winner(game_data, player)
     else:
@@ -411,8 +481,14 @@ def player_draw_card(game_id, player_id):
     if player_has_playable_card(game_data, player):
         return False
     draw_card(game_data, player)
+    msg = None
     if not player_has_playable_card(game_data, player):
         activate_next_player(game_data, card_drawn=True)
+        msg = make_info_message(
+            '{} drew a card but couldn\'t play'.format(player['name']))
+    else:
+        msg = make_info_message('{} drew a card'.format(player['name']))
+    flash_player(game_data, player, alt_message=msg)
     save_state(game_data)
     return True
 
@@ -431,8 +507,9 @@ def join_game(game_id, name):
         return None
     player = add_player_to_game(game_data, name)
     if player:
-        msg = 'You have joined the game'
-        alt_msg = '{} has joined the game'.format(player['name'])
+        msg = make_info_message('You have joined the game')
+        alt_msg = make_info_message(
+            '{} has joined the game'.format(player['name']))
         flash_player(game_data, player, msg, alt_msg)
         save_state(game_data)
     return player
@@ -451,8 +528,8 @@ def leave_game(game_id, player_id):
     if game_data['ended_at']:
         return False
     quitter = [p for p in players if p['id'] == player_id][0]
-    msg = 'You have left the game'
-    alt_msg = '{} has left the game'.format(quitter['name'])
+    msg = make_info_message('You have left the game')
+    alt_msg = make_info_message('{} has left the game'.format(quitter['name']))
     flash_player(game_data, quitter, msg, alt_msg)
     if quitter['active']:
         activate_next_player(game_data, player_quit=True)
@@ -468,10 +545,11 @@ def leave_game(game_id, player_id):
         game_data['active'] = False
         game_data['players'][0]['active'] = False
         game_data['ended_at'] = serialize_datetime(datetime.utcnow())
-        flash_broadcast(game_data, 'Game is over')
+        msg = make_info_message('Game is over')
+        flash_broadcast(game_data, msg)
     else:
         if new_admin:
-            msg = 'You are now the game administrator'
+            msg = make_info_message('You are now the game administrator')
             flash_player(game_data, new_admin, msg)
     # If no players remaining, end the game now.
     if not game_data['players']:
@@ -504,7 +582,9 @@ def admin_start_game(game_id, player_id):
     if not player['admin']:
         return False
     start_game(game_data)
-    flash_broadcast(game_data, 'The game has started')
+    msg = make_info_message('The game has started')
+    alt_msg = make_info_message('{} started the game'.format(player['name']))
+    flash_player(game_data, player, msg, alt_msg)
     save_state(game_data)
     return True
 
