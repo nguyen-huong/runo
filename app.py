@@ -31,7 +31,7 @@ def newgame():
         game_id = game_data['id']
         player_id = game_data['players'][0]['id']
         return redirect(url_for('play', game_id=game_id, player_id=player_id))
-    return 'Unable to create a new game at this time.'
+    return 'Unable to create a new game at this time. Please try again later.'
 
 
 @app.route('/join')
