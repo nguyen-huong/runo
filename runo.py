@@ -124,7 +124,8 @@ def add_player_to_game(game_data, player_name, admin=False):
         'hand': [],
         'points': 0,
         'rounds_won': 0,
-        'game_winner': False
+        'game_winner': False,
+        'messages': ['You have joined the game!']
     }
     game_data['players'].append(player)
     return player
@@ -483,12 +484,20 @@ def get_state(game_id, player_id):
     players = game_data.get('players')
     if not players or player_id not in [p['id'] for p in players]:
         return {}
+    for p in players:
+        if p['id'] == player_id:
+            messages = p['messages']
+            p['messages'] = []
+            save_state(game_data)
+            game_data['messages'] = messages
+            break;
     game_data['draw_pile_size'] = len(game_data['deck'])
     game_data.pop('deck')
     last_discard = game_data['stack'][-1] if game_data['stack'] else None
     game_data['last_discard'] = last_discard
     game_data['discard_pile_size'] = len(game_data['stack'])
     for p in players:
+        del p['messages']
         p['hand_size'] = len(p['hand'])
         if p['id'] == player_id and p['active']:
             p['draw_required'] = True
@@ -500,4 +509,6 @@ def get_state(game_id, player_id):
             p['id'] = None
             p.pop('hand')
     game_data.pop('stack')
+    # game_data['messages'] = [u'hellow']
+    print(game_data['messages'])
     return game_data

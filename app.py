@@ -1,7 +1,7 @@
 from flask import abort, Flask, jsonify, redirect, render_template, request, \
     url_for
 from runo import admin_start_game, create_new_game, get_state, get_open_games, \
-    join_game, leave_game, play_card, player_draw_card
+    join_game, leave_game, load_state, play_card, player_draw_card
 
 app = Flask(__name__)
 
@@ -14,9 +14,11 @@ def index():
 
 @app.route('/play/<game_id>/<player_id>')
 def play(game_id, player_id):
-    game_data = get_state(game_id, player_id)
+    game_data = load_state(game_id)
     if not game_data:
-        abort(404);
+        abort(404)
+    if player_id not in [p['id'] for p in game_data['players']]:
+        abort(404)
     return render_template('play.html', game_id=game_id, player_id=player_id)
 
 

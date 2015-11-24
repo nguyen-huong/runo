@@ -3,6 +3,7 @@ var runGame = function() {
         if (game_data) {
             topBar.update(game_data);
             scoreboard.update(game_data);
+            flash.update(game_data);
             tray.update(game_data);
             hand.update(game_data);
         }
@@ -21,13 +22,13 @@ var runGame = function() {
     });
     element.append(topBar.element);
 
-    // Create the flash
-    // var flash = new Flash();
-    // element.append(flash.element);
-
     // Create the scoreboard
     var scoreboard = new Scoreboard();
     element.append(scoreboard.element);
+
+    // Create the flash
+    var flash = new Flash();
+    element.append(flash.element);
 
     // Create the tray
     var tray = new Tray(function() {
