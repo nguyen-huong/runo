@@ -585,7 +585,7 @@ def admin_start_game(game_id, player_id):
     flash_player(game_data, player, msg, alt_msg)
     msg = make_info_message(
         'The first player to {} points wins!'.format(POINTS_TO_WIN))
-    flash_broadcast(msg)
+    flash_broadcast(game_data, msg)
     save_state(game_data)
     return True
 
