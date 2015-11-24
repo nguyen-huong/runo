@@ -3,6 +3,12 @@ var FlashMessage = function(message) {
     this.element.addClass('alert-' + message.type)
     var element = this.element;
     setTimeout(function() {
-        element.remove();
-    }, 3000);
+        element.addClass('alert-active');
+        setTimeout(function() {
+            element.removeClass('alert-active');
+            setTimeout(function() {
+                element.remove();
+            }, 750);
+        }, 2500);
+    }, 50);
 };
