@@ -4,7 +4,7 @@ var json = (function() {
 
     obj.getState = function(callback) {
         var currentTime = new Date();
-        if ((currentTime - lastGetState) > 100) {
+        if ((currentTime - lastGetState) > 50) {
             $.getJSON($SCRIPT_ROOT + '/getstate', {
                 game_id: GAME_ID,
                 player_id: PLAYER_ID
