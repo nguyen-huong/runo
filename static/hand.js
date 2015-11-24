@@ -25,7 +25,6 @@ Hand.prototype.removeCard = function(card) {
     if (index !== -1) {
         card.remove();
         this.cards.splice(index, 1);
-        sound.pop();
     }
 };
 
@@ -44,8 +43,11 @@ Hand.prototype.removeCards = function(handJSON) {
             remove.push(this.cards[i]);
         }
     }
-    for (var i = 0; i < remove.length; i++) {
-        this.removeCard(remove[i]);
+    if (remove.length > 0) {
+        for (var i = 0; i < remove.length; i++) {
+            this.removeCard(remove[i]);
+        }
+        sound.pop();
     }
 };
 
