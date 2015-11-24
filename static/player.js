@@ -63,5 +63,10 @@ Player.prototype.update = function(playerJSON, game_data) {
     } else if (!playerJSON.active && this.isActive) {
         this.deactivate();
     }
+
+    if (this.isGameWinner) {
+        this.element.addClass('player-winner');
+    }
+
     this.isActive = playerJSON.active;
 };

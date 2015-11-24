@@ -80,6 +80,11 @@ table {
     background-color: #dff0d8;
 }
 
+.player-winner {
+    color: #ed143d;
+    background-color: #fff900
+}
+
 #tray {
     /* static */
     text-align: center;
