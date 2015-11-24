@@ -48,11 +48,8 @@ var runGame = function() {
 
     // Display the game
     $('body').prepend(element);
-
-
     json.getState(update);
-
     setInterval(function() {
         json.getState(update);
-    }, 2000);
+    }, 1000);
 };
