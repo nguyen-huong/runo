@@ -56,6 +56,7 @@ Player.prototype.update = function(playerJSON, game_data) {
     this.numCardsElement.text(this.numCards);
     this.isGameWinner = playerJSON.game_winner;
     this.isDrawRequired = playerJSON.draw_required;
+    this.isAdmin = playerJSON.admin;
 
     if (playerJSON.active && !this.isActive) {
         this.activate();
@@ -63,13 +64,4 @@ Player.prototype.update = function(playerJSON, game_data) {
         this.deactivate();
     }
     this.isActive = playerJSON.active;
-
-    // Perform actions specific to the current player
-    if (this.id) {
-        if (!this.isAdmin && playerJSON.admin && !game_data.started_at) {
-            // TODO: Add a flash message here
-            alert('The admin left... You are now the game admin!');
-        }
-    }
-    this.isAdmin = playerJSON.admin;
 };

@@ -3,5 +3,5 @@ var FlashMessage = function(message) {
     var element = this.element;
     setTimeout(function() {
         element.remove();
-    }, 3000);
+    }, 5000);
 };

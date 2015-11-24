@@ -125,7 +125,7 @@ def add_player_to_game(game_data, player_name, admin=False):
         'points': 0,
         'rounds_won': 0,
         'game_winner': False,
-        'messages': ['You have joined the game!']
+        'messages': []
     }
     game_data['players'].append(player)
     return player
@@ -304,6 +304,20 @@ def set_game_winner(game_data, player):
     player['game_winner'] = True
 
 
+def flash_broadcast(game_data, message):
+    for player in game_data['players']:
+        player['messages'].append(message)
+    save_state(game_data)
+
+
+def flash_player(game_data, player, message, alt_message=None):
+    player['messages'].append(message)
+    if alt_message:
+        for p in [p for p in game_data['players'] if p != player]:
+            p['messages'].append(alt_message)
+    save_state(game_data)
+
+
 def create_new_game(game_name, player_name, points_to_win=POINTS_TO_WIN,
                     min_players=MIN_PLAYERS, max_players=MAX_PLAYERS):
     """ Creates a new game.
@@ -335,6 +349,7 @@ def create_new_game(game_name, player_name, points_to_win=POINTS_TO_WIN,
         'points_to_win': points_to_win
     }
     add_player_to_game(game_data, player_name, True)
+    flash_broadcast(game_data, 'Waiting for other player(s) to join')
     save_state(game_data)
     return game_data
 
@@ -416,6 +431,9 @@ def join_game(game_id, name):
         return None
     player = add_player_to_game(game_data, name)
     if player:
+        msg = 'You have joined the game'
+        alt_msg = '{} has joined the game'.format(player['name'])
+        flash_player(game_data, player, msg, alt_msg)
         save_state(game_data)
     return player
 
@@ -433,24 +451,35 @@ def leave_game(game_id, player_id):
     if game_data['ended_at']:
         return False
     quitter = [p for p in players if p['id'] == player_id][0]
+    msg = 'You have left the game'
+    alt_msg = '{} has left the game'.format(quitter['name'])
+    flash_player(game_data, quitter, msg, alt_msg)
     if quitter['active']:
         activate_next_player(game_data, player_quit=True)
     game_data['players'].remove(quitter)
     # If the quitter was the admin and there is at least one player
     # remaining, reassign the admin role to the first position.
+    new_admin = None
     if quitter['admin'] and game_data['players']:
-        game_data['players'][0]['admin'] = True
+        new_admin = game_data['players'][0]
+        new_admin['admin'] = True
     # If one player remaining in an active game, end the game now.
     if game_data['active'] and len(game_data['players']) == 1:
         game_data['active'] = False
         game_data['players'][0]['active'] = False
         game_data['ended_at'] = serialize_datetime(datetime.utcnow())
+        flash_broadcast(game_data, 'Game is over')
+    else:
+        if new_admin:
+            msg = 'You are now the game administrator'
+            flash_player(game_data, new_admin, msg)
     # If no players remaining, end the game now.
     if not game_data['players']:
         game_data['ended_at'] = serialize_datetime(datetime.utcnow())
     # If game is still active at this point, reclaim the quitter's cards.
     if game_data['active']:
         reclaim_player_cards(game_data, quitter)
+
     save_state(game_data)
     return True
 
@@ -475,6 +504,7 @@ def admin_start_game(game_id, player_id):
     if not player['admin']:
         return False
     start_game(game_data)
+    flash_broadcast(game_data, 'The game has started')
     save_state(game_data)
     return True
 
@@ -509,6 +539,4 @@ def get_state(game_id, player_id):
             p['id'] = None
             p.pop('hand')
     game_data.pop('stack')
-    # game_data['messages'] = [u'hellow']
-    print(game_data['messages'])
     return game_data
