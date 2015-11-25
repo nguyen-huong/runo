@@ -48,7 +48,7 @@ def deserialize_datetime(serialized_dt):
 
 def load_state(game_id):
     filepath = get_game_path(game_id)
-    lock = LockFile(filepath)
+    lock = LockFile(GAME_FILE_PATH)
     with lock:
         try:
             with open(filepath) as game_file:
@@ -60,7 +60,7 @@ def load_state(game_id):
 
 def save_state(game_data):
     filepath = get_game_path(game_data['id'])
-    lock = LockFile(filepath)
+    lock = LockFile(GAME_FILE_PATH)
     with lock:
         try:
             with open(filepath, 'w') as game_file:
@@ -72,7 +72,10 @@ def save_state(game_data):
 
 def get_open_games():
     games = []
-    for game_id in os.listdir(GAME_FILE_PATH):
+    lock = LockFile(GAME_FILE_PATH)
+    with lock:
+        game_files = os.listdir(GAME_FILE_PATH)
+    for game_id in game_files:
         game_data = load_state(game_id)
         if not game_data['active'] and not game_data['ended_at']:
             games.append(game_data)
@@ -81,7 +84,10 @@ def get_open_games():
 
 def get_old_games():
     games = []
-    for game_id in os.listdir(GAME_FILE_PATH):
+    lock = LockFile(GAME_FILE_PATH)
+    with lock:
+        game_files = os.listdir(GAME_FILE_PATH)
+    for game_id in game_files:
         game_data = load_state(game_id)
         age = datetime.utcnow() - deserialize_datetime(game_data['created_at'])
         # If game is at least a day old, add it to the list.

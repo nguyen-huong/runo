@@ -1,6 +1,7 @@
 import os
 import unittest
 from datetime import datetime, timedelta
+from lockfile import LockFile
 from runo import *
 
 TEST_GAME_FILE_PATH = 'games_test'
