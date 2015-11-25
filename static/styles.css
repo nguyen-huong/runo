@@ -50,9 +50,21 @@ td {
     width: 6em;
 }
 
+#about {
+    line-height: 1.4em;
+    text-align: left;
+    color: #808080;
+    font-size: 0.8em;
+    padding: 1em;
+}
+
 @media (min-width: 500px) {
     table {
         font-size: 0.8em;
+    }
+
+    #about {
+        font-size: 1em;
     }
 }
 
@@ -66,13 +78,13 @@ td {
         font-size: 1.4em;
     }
 
-    table {
-        font-size: 0.8em;
-    }
-
     .form-container {
         width: 90%;
         padding: 4em;
+    }
+
+    #about {
+        padding: 2em 4em;
     }
 }
 
