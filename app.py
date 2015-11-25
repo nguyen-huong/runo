@@ -3,13 +3,19 @@ from flask import abort, Flask, jsonify, redirect, render_template, request, \
 from runo import admin_start_game, create_new_game, get_state, get_open_games, \
     join_game, leave_game, load_state, play_card, player_draw_card
 
+
+MAX_GAME_NAME_LENGTH = 20
+MAX_PLAYER_NAME_LENGTH = 16
+
 app = Flask(__name__)
 
 
 @app.route('/')
 def index():
     open_games = get_open_games()
-    return render_template('index.html', open_games=open_games)
+    return render_template('index.html', open_games=open_games,
+        max_game_name_length=MAX_GAME_NAME_LENGTH,
+        max_player_name_length=MAX_PLAYER_NAME_LENGTH)
 
 
 @app.route('/play/<game_id>/<player_id>')
@@ -24,8 +30,8 @@ def play(game_id, player_id):
 
 @app.route('/newgame')
 def newgame():
-    game_name = request.args.get('game_name')
-    player_name = request.args.get('player_name')
+    game_name = request.args.get('game_name', '')[:MAX_GAME_NAME_LENGTH]
+    player_name = request.args.get('player_name', '')[:MAX_PLAYER_NAME_LENGTH]
     game_data = create_new_game(game_name, player_name)
     if game_data:
         game_id = game_data['id']
@@ -37,7 +43,7 @@ def newgame():
 @app.route('/join')
 def join():
     game_id = request.args.get('game_id')
-    name = request.args.get('name')
+    name = request.args.get('name', '')[:MAX_PLAYER_NAME_LENGTH]
     player = join_game(game_id, name)
     if player:
         player_id = player['id']

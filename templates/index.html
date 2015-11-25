@@ -1,18 +1,78 @@
-{% extends 'layout.html' %}
-{% block body %}
-<h1>Runo Test Client</h1>
-<hr>
-<a href="{{ url_for('newgame') }}">New Game</a>
-<hr>
-<ul>
-    {% for game in open_games %}
-    <li>
-        {{ game.name }} |
-        # of players: {{ game.players|length }} |
-        {{ game.created_at }} (UTC) |
-        <a href="{{ url_for('join', game_id=game.id) }}">Join</a>
-    </li>
-    {% endfor %}
-</ul>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>RUNO | the UNO clone</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='gamestyles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div id="game">
+        <div id="topbar">
+            <h1>RUNO | the UNO clone</h1>
+        </div>
+        <div id="tray">
+            {% if open_games %}
+            <h2>Join an Existing Game</h2>
+            <div class="form-container form-group">
+                <form action="{{ url_for('join') }}" method="get">
+                    <label for="player_name">Your Name</label><br>
+                    <input class="form-control" type="text" name="name"
+                        id="player_name" maxlength="{{ max_player_name_length }}" required><br>
+                    <table id="gamelist" class="table table-condensed table-hover">
+                        <thead>
+                            <tr>
+                                <th class="col-sm-5">Game</th>
+                                <th class="col-sm-2">Players</th>
+                                <th class="col-sm-5">Created At (UTC)</th>
+                        </thead>
+                        <tbody>
+                            {% for game in open_games %}
+                            <tr>
+                                <td>
+                                    <label>
+                                        <input type="radio" name="game_id" value="{{ game['id'] }}" required>
+                                        {{ game.name }}
+                                    </label>
+                                </td>
+                                <td>{{ game.players|length }}</td>
+                                <td>{{ game.created_at }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <div class="buttons">
+                        <input class="btn btn-default" type="submit" value="Join">
+                    </div>
+                </form>
+            </div>
+            {% endif %}
+            <h2>Create a New Game</h2>
+            <div class="form-container form-group">
+                <form action="{{ url_for('newgame') }}" method="get">
+                    <label for="player_name">Your Name</label><br>
+                    <input class="form-control" type="text" name="player_name"
+                        id="player_name" maxlength="{{ max_player_name_length }}" required><br>
+                    <label for="game_name">Game Name</label><br>
+                    <input class="form-control" type="text" name="game_name"
+                        id="game_name" maxlength="{{ max_game_name_length }}" required><br>
+                    <div class="buttons">
+                        <input class="btn btn-default" type="submit" value="Create">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
-{% endblock %}
+    <div id="description">
+        A full stack web development demonstration.<br>
+        © 2015 <a href="http://www.linkedin.com/in/richgieg">Richard Gieg</a>.
+        Coded in Python, JavaScript, HTML5 and CSS.
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" integrity="sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==" crossorigin="anonymous"></script>
+</body>
+</html>
