@@ -51,5 +51,5 @@ var runGame = function() {
     json.getState(update);
     setInterval(function() {
         json.getState(update);
-    }, 1000);
+    }, 500);
 };
