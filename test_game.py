@@ -20,7 +20,6 @@ class GameTestCase(unittest.TestCase):
         os.chdir(old_dir)
 
     def test_can_create_new_game(self):
-        print(MAX_GAMES_PER_DAY)
         for __ in range(TEST_MAX_GAMES_PER_DAY):
             # Ensure that the game was created successfully
             self.assertTrue(save_state(create_new_game('MyGame', 'PlayerOne')))
