@@ -4,7 +4,6 @@ from runo import admin_start_game, create_new_game, get_state, get_open_games, \
     join_game, leave_game, load_state, play_card, player_draw_card
 
 
-MAX_GAME_NAME_LENGTH = 20
 MAX_PLAYER_NAME_LENGTH = 16
 
 app = Flask(__name__)
@@ -14,7 +13,6 @@ app = Flask(__name__)
 def index():
     open_games = get_open_games()
     return render_template('index.html', open_games=open_games,
-        max_game_name_length=MAX_GAME_NAME_LENGTH,
         max_player_name_length=MAX_PLAYER_NAME_LENGTH)
 
 
@@ -30,9 +28,8 @@ def play(game_id, player_id):
 
 @app.route('/newgame')
 def newgame():
-    game_name = request.args.get('game_name', '')[:MAX_GAME_NAME_LENGTH]
     player_name = request.args.get('player_name', '')[:MAX_PLAYER_NAME_LENGTH]
-    game_data = create_new_game(game_name, player_name)
+    game_data = create_new_game(None, player_name)
     if game_data:
         game_id = game_data['id']
         player_id = game_data['players'][0]['id']

@@ -8,5 +8,6 @@ var TopBar = function(startHandler) {
 };
 
 TopBar.prototype.update = function(game_data) {
+    this.title.update(game_data);
     this.controls.update(game_data);
 };

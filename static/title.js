@@ -4,4 +4,6 @@ var Title = function() {
 };
 
 Title.prototype.update = function(game_data) {
+    var title = 'RUNO | ' + game_data['name'];
+    this.element.text(title);
 };
