@@ -25,16 +25,20 @@
                     <table id="gamelist" class="table table-condensed table-hover">
                         <thead>
                             <tr>
-                                <th class="col-sm-5">Game</th>
-                                <th class="col-sm-2">Players</th>
-                                <th class="col-sm-5">Created At (UTC)</th>
+                                <th class="col-xs-1"></th>
+                                <th class="col-xs-3">Game</th>
+                                <th class="col-xs-2">Players</th>
+                                <th class="col-xs-6">Created At (UTC)</th>
                         </thead>
                         <tbody>
                             {% for game in open_games %}
                             <tr>
                                 <td>
-                                    <label>
-                                        <input type="radio" name="game_id" value="{{ game['id'] }}" required>
+                                    <input type="radio" name="game_id"
+                                        id="{{ game['id'] }}" value="{{ game['id'] }}" required>
+                                </td>
+                                <td>
+                                    <label for="{{ game['id'] }}">
                                         {{ game.name }}
                                     </label>
                                 </td>

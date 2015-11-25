@@ -1,30 +1,29 @@
 h1 {
-    font-size: 1em;
     font-weight: bold;
     margin: 0;
+    font-size: 1em;
 }
 
 #tray {
-    padding: 0.1em 2em 2em;
+    padding: 0.1em 1em 2em;
 }
 
 h2 {
-    width: 90%;
     background-color: #f8f8f8;
-    border-radius: 0.3em;
+    border-radius: 0.8em;
     box-shadow: 5px 5px 5px #888888;
-    padding: 0.2em;
-    margin: 1em auto 0.5em;
+    font-size: 1.1em;
+    padding: 0.6em;
+    margin: 1.5em auto 0.8em;
 }
 
 .form-container {
-    width: 90%;
     text-align: center;
     background-color: #eee;
     border-radius: 1em;
     box-shadow: 5px 5px 5px #888888;
-    padding: 4em;
     margin: 0 auto;
+    padding: 1em;
 }
 
 form {
@@ -35,13 +34,12 @@ label {
     color: #5b9a9c;
 }
 
-.table-container {
-    background-color: #f8f8f8;
-    /*border: 1px solid gray;*/
+table {
+    font-size: 0.5em;
 }
 
-table {
-
+td {
+    vertical-align: middle;
 }
 
 .buttons {
@@ -52,22 +50,38 @@ table {
     width: 6em;
 }
 
-@media (min-width: 400px) {
-
-}
-
 @media (min-width: 500px) {
-
-}
-
-@media (min-width: 600px) {
-
+    table {
+        font-size: 0.8em;
+    }
 }
 
 @media (min-width: 768px) {
+    #tray {
+        padding: 0.1em 2em 2em;
+    }
 
+    h2 {
+        width: 90%;
+        font-size: 1.4em;
+    }
+
+    table {
+        font-size: 0.8em;
+    }
+
+    .form-container {
+        width: 90%;
+        padding: 4em;
+    }
 }
 
 @media (min-width: 960px) {
+    #tray {
+        padding: 0.1em 2em 2em;
+    }
 
+    table {
+        font-size: 1em;
+    }
 }
