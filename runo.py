@@ -402,6 +402,7 @@ def flash_player(game_data, player, message=None, alt_message=None):
 def flash_exclude(game_data, players, message):
     for p in [p for p in game_data['players'] if p not in players]:
         p['messages'].append(message)
+    save_state(game_data)
 
 
 def create_new_game(game_name, player_name, points_to_win=POINTS_TO_WIN,
