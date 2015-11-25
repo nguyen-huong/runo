@@ -1,6 +1,13 @@
-#Runo
+#Welcome to RUNO
 
-An online multiplayer clone of the popular card game Uno. The back-end portion
-of this project is nearly complete. A basic front-end has been implemented,
-mainly for live testing and brainstorming for the real UI (which hasn't been
-started yet, but will be soon).
+RUNO is a browser-based multiplayer online game modeled after the popular card
+game UNO. I built this project in order to get additional hands-on practice
+covering the new skills I have developed thus far while working through the
+[Full Stack Web Developer Nanodegree](http://www.udacity.com/course/full-stack-web-developer-nanodegree--nd004)
+and
+[Front-End Web Developer Nanodegree](http://www.udacity.com/course/front-end-web-developer-nanodegree--nd001) programs offered by
+[Udacity](http://www.udacity.com).
+I hope you enjoy!
+
+
+To play the game, visit the live site [here](http://www.richgieg.com/runo).
