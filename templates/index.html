@@ -12,15 +12,14 @@
 <body>
     <div id="game">
         <div id="topbar">
-            <h1>RUNO | the UNO clone</h1>
+            <h1>RUNO -- the UNO clone</h1>
         </div>
         <div id="tray">
             <h2>Welcome to RUNO</h2>
             <div id="about" class="form-container">
-                RUNO is a browser-based multiplayer online game based on the popular
-                card game UNO. I built this game in order to get additional hands-on
-                practice covering the new skills I have developed thus far while
-                working through the
+                RUNO is a browser-based multiplayer online game modeled after the
+                popular card game UNO. I built this project in order to get additional
+                hands-on practice covering the new skills I have developed thus far while working through the
                 <a href="http://www.udacity.com/course/full-stack-web-developer-nanodegree--nd004" target="_blank">Full Stack Web Developer Nanodegree</a> and
                 <a href="http://www.udacity.com/course/front-end-web-developer-nanodegree--nd001" target="_blank">Front-End Web Developer Nanodegree</a> programs offered by
                 <a href="http://www.udacity.com/" target="_blank">Udacity</a>.
@@ -36,6 +35,17 @@
                 <a href="#join">Join an Existing Game</a> section below. If that
                 section isn't visible, it's because there aren't any games that
                 are accepting new players at this time.
+            </div>
+            <h2 id="create">Create a New Game</h2>
+            <div class="form-container form-group">
+                <form action="{{ url_for('newgame') }}" method="get">
+                    <label for="player_name">Your Name</label><br>
+                    <input class="form-control" type="text" name="player_name"
+                        id="player_name" maxlength="{{ max_player_name_length }}" required><br>
+                    <div class="buttons">
+                        <input class="btn btn-default" type="submit" value="Create">
+                    </div>
+                </form>
             </div>
             {% if open_games %}
             <h2 id="join">Join an Existing Game</h2>
@@ -76,17 +86,6 @@
                 </form>
             </div>
             {% endif %}
-            <h2 id="create">Create a New Game</h2>
-            <div class="form-container form-group">
-                <form action="{{ url_for('newgame') }}" method="get">
-                    <label for="player_name">Your Name</label><br>
-                    <input class="form-control" type="text" name="player_name"
-                        id="player_name" maxlength="{{ max_player_name_length }}" required><br>
-                    <div class="buttons">
-                        <input class="btn btn-default" type="submit" value="Create">
-                    </div>
-                </form>
-            </div>
         </div>
     </div>
 

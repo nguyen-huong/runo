@@ -11,17 +11,22 @@ h1 {
 h2 {
     background-color: #f8f8f8;
     border-radius: 0.8em;
-    box-shadow: 5px 5px 5px #888888;
+    box-shadow: 3px 3px 3px #606060;
     font-size: 1.1em;
     padding: 0.6em;
     margin: 1.5em auto 0.8em;
+    background: rgb(255,255,255); /* Old browsers */
+    background: -moz-linear-gradient(top,  rgba(255,255,255,1) 0%, rgba(241,241,241,1) 50%, rgba(225,225,225,1) 51%, rgba(246,246,246,1) 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(top,  rgba(255,255,255,1) 0%,rgba(241,241,241,1) 50%,rgba(225,225,225,1) 51%,rgba(246,246,246,1) 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to bottom,  rgba(255,255,255,1) 0%,rgba(241,241,241,1) 50%,rgba(225,225,225,1) 51%,rgba(246,246,246,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#f6f6f6',GradientType=0 ); /* IE6-9 */
 }
 
 .form-container {
     text-align: center;
-    background-color: #eee;
+    background-color: rgba(238,238,238,0.9);
     border-radius: 1em;
-    box-shadow: 5px 5px 5px #888888;
+    box-shadow: 3px 3px 3px #606060;
     margin: 0 auto;
     padding: 1em;
 }
@@ -31,7 +36,7 @@ form {
 }
 
 label {
-    color: #5b9a9c;
+    color: #3987be;
 }
 
 table {
