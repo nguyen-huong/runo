@@ -5,6 +5,7 @@ import string
 from collections import deque
 from datetime import datetime
 from itertools import cycle
+from lockfile import LockFile
 
 GAME_ID_LENGTH = 48
 PLAYER_ID_LENGTH = 48
@@ -47,21 +48,25 @@ def deserialize_datetime(serialized_dt):
 
 def load_state(game_id):
     filepath = get_game_path(game_id)
-    try:
-        with open(filepath) as game_file:
-            game_data = json.load(game_file)
-    except IOError:
-        game_data = {}
+    lock = LockFile(filepath)
+    with lock:
+        try:
+            with open(filepath) as game_file:
+                game_data = json.load(game_file)
+        except IOError:
+            game_data = {}
     return game_data
 
 
 def save_state(game_data):
     filepath = get_game_path(game_data['id'])
-    try:
-        with open(filepath, 'w') as game_file:
-            json.dump(game_data, game_file)
-    except IOError:
-        return False
+    lock = LockFile(filepath)
+    with lock:
+        try:
+            with open(filepath, 'w') as game_file:
+                json.dump(game_data, game_file)
+        except IOError:
+            return False
     return True
 
 
