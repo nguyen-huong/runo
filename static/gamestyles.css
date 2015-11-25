@@ -33,6 +33,7 @@ table {
 
 #title {
     display: inline-block;
+    font-size: 0.8em;
     font-weight: bold;
     width: 49%;
 }
@@ -250,6 +251,10 @@ table {
 }
 
 @media (min-width: 500px) {
+    #title {
+        font-size: 1em;
+    }
+
     #scoreboard {
         font-size: 12px;
     }
