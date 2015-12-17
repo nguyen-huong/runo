@@ -70,18 +70,6 @@ def save_state(game_data):
     return True
 
 
-def get_open_games():
-    games = []
-    lock = LockFile(GAME_FILE_PATH)
-    with lock:
-        game_files = os.listdir(GAME_FILE_PATH)
-    for game_id in game_files:
-        game_data = load_state(game_id)
-        if not game_data['active'] and not game_data['ended_at']:
-            games.append(game_data)
-    return games
-
-
 def get_old_games():
     games = []
     lock = LockFile(GAME_FILE_PATH)
@@ -99,6 +87,19 @@ def get_old_games():
 def do_house_keeping():
     for game in get_old_games():
         os.remove(get_game_path(game['id']))
+
+
+def get_open_games():
+    do_house_keeping()
+    games = []
+    lock = LockFile(GAME_FILE_PATH)
+    with lock:
+        game_files = os.listdir(GAME_FILE_PATH)
+    for game_id in game_files:
+        game_data = load_state(game_id)
+        if not game_data['active'] and not game_data['ended_at']:
+            games.append(game_data)
+    return games
 
 
 def get_number_of_games():
