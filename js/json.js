@@ -2,6 +2,10 @@ var json = (function() {
     var obj = {}
     var lastGetState = null;
 
+    obj.disableCaching = function() {
+        $.ajaxSetup({cache: false});
+    };
+
     obj.getState = function(callback) {
         var currentTime = new Date();
         if ((currentTime - lastGetState) > 50) {

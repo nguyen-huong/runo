@@ -9,6 +9,9 @@ var runGame = function() {
         }
     };
 
+    // Disable AJAX caching (fixes issue in IE and Edge)
+    json.disableCaching();
+
     // Create the game element
     var element = $('<div id="game"></div>');
 
