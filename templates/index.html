@@ -63,11 +63,13 @@
                                 <th class="col-xs-6">Created At (UTC)</th>
                         </thead>
                         <tbody>
+                            {% set count = 0 %}
                             {% for game in open_games %}
                             <tr>
                                 <td>
                                     <input type="radio" name="game_id"
-                                        id="{{ game['id'] }}" value="{{ game['id'] }}" required>
+                                        id="{{ game['id'] }}" value="{{ game['id'] }}"{% if count == 0 %}checked{% endif %}
+                                        required>
                                 </td>
                                 <td>
                                     <label for="{{ game['id'] }}">
@@ -77,6 +79,7 @@
                                 <td>{{ game.players|length }}</td>
                                 <td>{{ game.created_at }}</td>
                             </tr>
+                            {% set count = count + 1 %}
                             {% endfor %}
                         </tbody>
                     </table>
