@@ -1,4 +1,4 @@
-#Welcome to RUNO
+# Welcome to RUNO
 
 RUNO is a browser-based multiplayer online game modeled after the popular card
 game UNO. I built this project in order to get additional hands-on practice
