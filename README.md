@@ -8,6 +8,3 @@ and
 [Front-End Web Developer Nanodegree](http://www.udacity.com/course/front-end-web-developer-nanodegree--nd001) programs offered by
 [Udacity](http://www.udacity.com).
 I hope you enjoy!
-
-
-To play the game, visit the live site [here](http://www.richgieg.com/runo).
