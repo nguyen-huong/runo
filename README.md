@@ -9,6 +9,5 @@ and
 [Udacity](http://www.udacity.com).
 I hope you enjoy!
 
-Big thanks to [austinghuang0131](https://github.com/austinhuang0131), who is currently hosting the game at:
 
-http://austinhuang0131.pythonanywhere.com/
+To play the game, visit the live site [here](http://www.richgieg.com/runo).
