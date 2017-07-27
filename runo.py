@@ -250,13 +250,6 @@ def can_play_card(game_data, card):
     return False
 
 
-def player_has_playable_card(game_data, player):
-    for card in player['hand']:
-        if can_play_card(game_data, card):
-            return True
-    return False
-
-
 def player_has_matching_color_card(game_data, player):
     # Get the color of the previously played card
     color_to_match = game_data['stack'][-1]['color']
@@ -529,17 +522,13 @@ def player_draw_card(game_id, player_id):
         return False
     if not game_data['active']:
         return False
-    if player_has_playable_card(game_data, player):
-        msg = make_danger_message(
-            'You can\'t draw when you have a playable card!')
-        flash_player(game_data, player, msg)
-        return False
     draw_card(game_data, player)
+    new_card = player['hand'][-1]
     msg = None
-    if not player_has_playable_card(game_data, player):
+    if not can_play_card(game_data, new_card):
         activate_next_player(game_data, card_drawn=True)
         msg = make_info_message(
-            '{} drew a card but couldn\'t play'.format(player['name']))
+            '{} drew a card but couldn\'t play it'.format(player['name']))
     else:
         msg = make_info_message('{} drew a card'.format(player['name']))
     flash_player(game_data, player, alt_message=msg)
