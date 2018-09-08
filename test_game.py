@@ -1,8 +1,9 @@
-import os
 import unittest
 from datetime import datetime, timedelta
-from lockfile import LockFile
+from google.cloud import firestore
 from runo import *
+
+db = firestore.Client()
 
 TEST_GAME_FILE_PATH = 'games_test'
 TEST_MAX_GAMES_PER_DAY = 5
@@ -14,11 +15,9 @@ class GameTestCase(unittest.TestCase):
         set_MAX_GAMES_PER_DAY(TEST_MAX_GAMES_PER_DAY)
 
     def tearDown(self):
-        old_dir = os.getcwd()
-        os.chdir(old_dir + '/' + TEST_GAME_FILE_PATH)
-        for game_file in os.listdir('.'):
-            os.remove(game_file)
-        os.chdir(old_dir)
+        game_files = db.collection(TEST_GAME_FILE_PATH).get()
+        for game_file in game_files:
+            game_file.reference.delete()
 
     def test_can_create_new_game(self):
         for __ in range(TEST_MAX_GAMES_PER_DAY):
