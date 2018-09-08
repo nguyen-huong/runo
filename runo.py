@@ -1,11 +1,12 @@
 import json
-import os
 import random
 import string
 from collections import deque
 from datetime import datetime
+from google.cloud import firestore
 from itertools import cycle
-from lockfile import LockFile
+
+db = firestore.Client()
 
 GAME_ID_LENGTH = 48
 PLAYER_ID_LENGTH = 48
@@ -48,62 +49,56 @@ def deserialize_datetime(serialized_dt):
 
 def load_state(game_id):
     filepath = get_game_path(game_id)
-    lock = LockFile(GAME_FILE_PATH)
-    with lock:
-        try:
-            with open(filepath) as game_file:
-                game_data = json.load(game_file)
-        except IOError:
-            game_data = {}
+    try:
+        game_data = db.document(filepath).get().to_dict()
+    except:
+        game_data = {}
     return game_data
 
 
 def save_state(game_data):
     filepath = get_game_path(game_data['id'])
-    lock = LockFile(GAME_FILE_PATH)
-    with lock:
-        try:
-            with open(filepath, 'w') as game_file:
-                json.dump(game_data, game_file)
-        except IOError:
-            return False
+    try:
+        db.document(filepath).set(game_data)
+    except:
+        return False
     return True
 
 
 def get_old_games():
     games = []
-    lock = LockFile(GAME_FILE_PATH)
-    with lock:
-        game_files = os.listdir(GAME_FILE_PATH)
-    for game_id in game_files:
-        game_data = load_state(game_id)
+    game_files = db.collection(GAME_FILE_PATH).get()
+    for game_file in game_files:
+        game_data = game_file.to_dict()
         age = datetime.utcnow() - deserialize_datetime(game_data['created_at'])
         # If game is at least a day old, add it to the list.
         if age.days > 0:
             games.append(game_data)
-    return games
+    return games        
 
 
 def do_house_keeping():
     for game in get_old_games():
-        os.remove(get_game_path(game['id']))
+        db.document(get_game_path(game['id'])).delete()
 
 
 def get_open_games():
     do_house_keeping()
     games = []
-    lock = LockFile(GAME_FILE_PATH)
-    with lock:
-        game_files = os.listdir(GAME_FILE_PATH)
-    for game_id in game_files:
-        game_data = load_state(game_id)
+    game_files = db.collection(GAME_FILE_PATH).get()
+    for game_file in game_files:
+        game_data = game_file.to_dict()
         if not game_data['active'] and not game_data['ended_at']:
             games.append(game_data)
     return games
 
 
 def get_number_of_games():
-    return len(os.listdir(GAME_FILE_PATH))
+    game_files = db.collection(GAME_FILE_PATH).get()
+    count = 0
+    for _ in game_files:
+        count = count + 1
+    return count
 
 
 def can_create_new_game():
@@ -145,7 +140,7 @@ def create_deck():
             for __ in range(2):
                 cards.append(create_card(special, color))
     for special in SPECIAL_CARDS:
-        for i in range(0, 4):
+        for __ in range(0, 4):
             cards.append(create_card(special))
     random.shuffle(cards)
     return cards
@@ -645,7 +640,7 @@ def get_state(game_id, player_id):
             p['messages'] = []
             save_state(game_data)
             game_data['messages'] = messages
-            break;
+            break
     game_data['draw_pile_size'] = len(game_data['deck'])
     game_data.pop('deck')
     last_discard = game_data['stack'][-1] if game_data['stack'] else None

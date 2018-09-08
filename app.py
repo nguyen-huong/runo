@@ -84,7 +84,7 @@ def draw_route():
 
 @app.route('/quit/<game_id>/<player_id>')
 def quit(game_id, player_id):
-    result = leave_game(game_id, player_id)
+    leave_game(game_id, player_id)
     return redirect(url_for('index'))
 
 
