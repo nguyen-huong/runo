@@ -7,3 +7,4 @@ itsdangerous==0.24
 lockfile==0.11.0
 pbr==0.11.0
 wsgiref==0.1.2
+google-cloud-firestore==0.29.0
