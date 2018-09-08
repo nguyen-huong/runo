@@ -145,7 +145,7 @@ def create_deck():
             for __ in range(2):
                 cards.append(create_card(special, color))
     for special in SPECIAL_CARDS:
-        for i in range(0, 4):
+        for __ in range(0, 4):
             cards.append(create_card(special))
     random.shuffle(cards)
     return cards
@@ -645,7 +645,7 @@ def get_state(game_id, player_id):
             p['messages'] = []
             save_state(game_data)
             game_data['messages'] = messages
-            break;
+            break
     game_data['draw_pile_size'] = len(game_data['deck'])
     game_data.pop('deck')
     last_discard = game_data['stack'][-1] if game_data['stack'] else None
