@@ -1,5 +1,5 @@
-old/games/
-old/games_test/
-old/venv/
-old/*.pyc
-old/secrets/
+games/
+games_test/
+venv/
+*.pyc
+secrets/
