@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>RUNO | the UNO clone</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+    <link rel="stylesheet" href="/static/gamestyles.css">
+    <link rel="stylesheet" href="/static/styles.css">
+    <script>
+        var $SCRIPT_ROOT = '';
+        var QUIT_URL = '/quit/<%= game_id %>/<%= player_id %>';
+        var GAME_ID = '<%= game_id %>';
+        var PLAYER_ID = '<%= player_id %>';
+        var STATIC_PATH = '/static/';
+    </script>
+</head>
+<body>
+    <div id="description">
+        Developed by <a href="http://www.linkedin.com/in/richgieg">Richard Gieg</a>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" integrity="sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==" crossorigin="anonymous"></script>
+    <script src="/static/runo.min.js"></script>
+    <script>
+        $(function() {
+            runGame();
+        });
+    </script>
+</body>
+</html>

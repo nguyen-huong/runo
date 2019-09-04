@@ -1,5 +1,13 @@
-games/
-games_test/
-venv/
-*.pyc
-secrets/
+# Exclude compiled .js files
+js/
+
+# Exclude dependencies
+node_modules/
+
+# Exclude logs
+*.log
+
+app.yaml
+deploy.cmd
+launch.cmd
+launch-db-proxy-only.cmd
