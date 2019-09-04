@@ -7,7 +7,7 @@ node_modules/
 # Exclude logs
 *.log
 
-app.yaml
-deploy.cmd
-launch.cmd
-launch-db-proxy-only.cmd
+/app.yaml
+/deploy.cmd
+/launch.cmd
+/launch-db-proxy-only.cmd
