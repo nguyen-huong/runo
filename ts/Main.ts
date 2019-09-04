@@ -99,5 +99,5 @@ app.get('/quit/:game_id/:player_id', async (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`App listening on port ${PORT} (${process.env.TARGET_ENVIRONMENT})`);
+    console.log(`App listening on port ${PORT}`);
 });

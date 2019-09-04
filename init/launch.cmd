@@ -1,5 +1,4 @@
 @echo off
-set TARGET_ENVIRONMENT=#####
 set PORT=7000
 set DATABASE_USERNAME=#####
 set DATABASE_PASSWORD=#####
