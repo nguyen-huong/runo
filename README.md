@@ -1,13 +1,9 @@
 # Welcome to RUNO
 
 RUNO is a browser-based multiplayer online game modeled after the popular card
-game UNO. I built this project in order to get additional hands-on practice
-covering the new skills I have developed thus far while working through the
-[Full Stack Web Developer Nanodegree](http://www.udacity.com/course/full-stack-web-developer-nanodegree--nd004)
-and
-[Front-End Web Developer Nanodegree](http://www.udacity.com/course/front-end-web-developer-nanodegree--nd001) programs offered by
-[Udacity](http://www.udacity.com).
-I hope you enjoy!
+game UNO. I hope you enjoy!
 
+To play the game, visit the live site at https://runogame.com.
 
-To play the game, visit the live site [here](http://www.richgieg.com/runo).
+NOTE: I wrote the back end in Python back in 2015 and recently ported it to
+TypeScript (September 2019).
